@@ -1,7 +1,7 @@
-require 'batch_api/config'
+require 'batch_api/configuration'
 
-describe BatchAPI::Config do
-  let(:config) { BatchAPI::Config.new }
+describe BatchApi::Configuration do
+  let(:config) { BatchApi::Configuration.new }
 
   describe "options" do
     describe "#verb" do
