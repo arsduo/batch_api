@@ -3,23 +3,23 @@ A proposal for a Batch API endpoint.
 Batch requests take the form of a series of REST API requests,
 each containing the following arguments:
 
-* url - the API endpoint to hit, formatted exactly as you would for a regular
+* _url_ - the API endpoint to hit, formatted exactly as you would for a regular
 REST API request (e.g. leading /, etc.)
-* method - what type of request to make -- GET, POST, PUT, etc.
-* args - a hash of arguments to the API. This can be used for both GET and
+* _method_ - what type of request to make -- GET, POST, PUT, etc.
+* _args_ - a hash of arguments to the API. This can be used for both GET and
 PUT/POST/PATCH requests.
-* headers - a hash of request-specific headers. (The headers sent in the
+* _headers_ - a hash of request-specific headers. (The headers sent in the
 request will be included as well, with request-specific headers taking
 precendence.)
-* options - a hash of additional batch request options. There are currently
+* _options_ - a hash of additional batch request options. There are currently
 none supported, but we plan to introduce some for dependency management,
 supressing output, etc. in the future.
 
 The Batch API endpoint itself (which lives at POST /batch) takes the
 following arguments:
 
-* ops - an array of operations to perform, specified as described above.
-* sequential - execute all operations sequentially, rather than in parallel.
+* _ops_ - an array of operations to perform, specified as described above.
+* _sequential_ - execute all operations sequentially, rather than in parallel.
 *THIS PARAMETER IS CURRENTLY REQUIRED AND MUST BE SET TO TRUE.* (In the future
 we'll offer parallel processing by default, and hence this parameter must be
 supplied in order topreserve expected behavior.
@@ -31,10 +31,10 @@ Users must be logged in to use the Batch API.
 The Batch API returns an array of results in the same order the operations are
 specified. Each result contains:
 
-* status - the HTTP status (200, 201, 400, etc.)
-* body - the rendered body
-* headers - any response headers
-* cookies - any cookies set by the request. (These will in the future be
+* _status_ - the HTTP status (200, 201, 400, etc.)
+* _body_ - the rendered body
+* _headers_ - any response headers
+* _cookies_ - any cookies set by the request. (These will in the future be
 pulled into the main response to be processed by the client.)
 
 Errors in individual Batch API requests will be returned inline, with the
@@ -42,9 +42,9 @@ same status code and body they would return as individual requests. If the
 Batch API itself returns a non-200 status code, that indicates a global
 problem:
 
-* 403 - if the user isn't logged in
-* 422 - if the batch request isn't properly formatted
-* 500 - if there's an application error in the Batch API code
+* _403_ - if the user isn't logged in
+* _422_ - if the batch request isn't properly formatted
+* _500_ - if there's an application error in the Batch API code
 
 ** Examples **
 
