@@ -12,7 +12,7 @@ describe BatchApi::BatchController do
       xhr :post, :batch, ops: ops
     end
 
-    it "returns the result of the batch operation's execution in order" do
+    it "returns the resultof the batch operation's execution as JSON and in order" do
       ops = 10.times.collect {|i| {"operation" => i.to_s} }
       ops.each do |o|
         BatchApi::Operation.should_receive(:new).and_return(stub(:execute => o["operation"]))
