@@ -8,3 +8,4 @@ test/dummy/.sass-cache
 
 .DS_Store
 spec/dummy/log/test.log
+*.log

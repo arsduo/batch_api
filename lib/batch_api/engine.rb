@@ -2,8 +2,7 @@
 module BatchApi
   class Engine < Rails::Engine
     initializer "batch_api.add_routing_helper" do |app|
-      puts "Doing initialization!!!"
-      ActionDispatch::Routing.send(:include, BatchApi::RoutingHelper)
+      ActionDispatch::Routing::Mapper.send(:include, BatchApi::RoutingHelper)
     end
   end
 end

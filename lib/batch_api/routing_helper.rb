@@ -5,8 +5,8 @@ module BatchApi
 
     def batch_api(options = {})
       endpoint = options.delete(:endpoint) || DEFAULT_ENDPOINT
-      verb = options.delete(:verb) || DEFAULT_VERB
-      match({endpoint => "batch#batch", via: verb}.merge(options))
+      verb = options.delete(:via) || DEFAULT_VERB
+      match({endpoint => "batch_api/batch#batch", via: verb}.merge(options))
     end
   end
 end
