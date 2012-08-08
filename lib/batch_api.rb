@@ -4,6 +4,9 @@ require 'active_support/dependencies'
 
 module BatchApi
   mattr_accessor :config
+  def self.config
+    @@config || Configuration.new
+  end
 
   def self.setup
     yield (self.config = Configuration.new)
