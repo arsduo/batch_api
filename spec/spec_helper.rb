@@ -17,7 +17,6 @@ end
 
 RSpec.configure do |config|
   config.before :each do
-    BatchApi.config = nil
   end
 end
 
