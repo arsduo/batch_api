@@ -161,6 +161,53 @@ describe BatchApi::Operation do
     end
   end
 
+  describe "#execute" do
+    context "when it works" do
+      let(:result) { [
+        200,
+        {header: "footer"},
+        stub(body: "{\"data\":2}", cookies: nil)
+      ] }
+
+      let(:action) { Proc.new { result } }
+      let(:processed_env) { stub }
+
+      before :each do
+        operation.stub(:identify_routing).and_return(action)
+        operation.stub(:process_env) { operation.env = processed_env }
+      end
+
+      it "calls the route identified with the processed environment" do
+        operation.should_receive(:identify_routing).and_return(action)
+        operation.stub(:process_env) { operation.env = processed_env }
+        action.should_receive(:call).with(processed_env).and_return(result)
+        operation.execute
+      end
+
+      it "returns a BatchAPI::Response made from the result" do
+        response = stub
+        BatchApi::Response.should_receive(:new).with(result).and_return(response)
+        operation.execute.should == response
+      end
+
+      it "creates and returns an error if one is raised in the routing" do
+        err = StandardError.new
+        result = stub
+        operation.stub(:identify_routing).and_raise(err)
+        operation.should_receive(:error_response).with(err).and_return(result)
+        operation.execute.should == result
+      end
+
+      it "creates and returns an error if one is raised in the method" do
+        err = StandardError.new
+        result = stub
+        action.stub(:call).and_raise(err)
+        operation.should_receive(:error_response).with(err).and_return(result)
+        operation.execute.should == result
+      end
+    end
+  end
+
   let(:env) {
     {
       "CONTENT_LENGTH"=>"10",

@@ -58,11 +58,9 @@ module BatchApi
       # path and query string
       @env["REQUEST_URI"] = @env["REQUEST_URI"].gsub(/\/batch.*/, @url)
       @env["REQUEST_PATH"] = path
-      @env["ORIGINAL_FULLPATH"] = @url
+      @env["ORIGINAL_FULLPATH"] = @env["PATH_INFO"] = @url
 
-      @env["PATH_INFO"] = @url
-      @env["rack.request.query_string"] = qs
-      @env["QUERY_STRING"] = qs
+      @env["rack.request.query_string"] = @env["QUERY_STRING"] = qs
 
       # parameters
       @env["action_dispatch.request.parameters"] = @params
@@ -76,8 +74,7 @@ module BatchApi
       begin
         action = identify_routing
         process_env
-        result = action.call(@env)
-        BatchApi::Response.new(result)
+        BatchApi::Response.new(action.call(@env))
       rescue => err
         puts err.class
         puts err.message
