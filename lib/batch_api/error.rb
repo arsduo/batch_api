@@ -15,7 +15,7 @@ module BatchApi
     # Public: the error details as a hash, which can be returned
     # to clients as JSON.
     def body
-      unless Rails.env.production?
+      if expose_backtrace?
         {
           message: @message,
           backtrace: @backtrace
@@ -23,6 +23,10 @@ module BatchApi
       else
         { message: @message }
       end
+    end
+
+    def expose_backtrace?
+      Rails.env.production?
     end
   end
 end
