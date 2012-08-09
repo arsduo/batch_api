@@ -206,6 +206,41 @@ describe BatchApi::Operation do
         operation.execute.should == result
       end
     end
+
+    describe "#error_response" do
+      let(:err) { StandardError.new.tap {|e| e.set_backtrace(Kernel.caller)} }
+      let(:wrapped_err) { stub(status_code: 30303) }
+      before :each do
+        ActionDispatch::ExceptionWrapper.stub(:new).and_return(wrapped_err)
+      end
+
+      it "creates a new BatchApi::Response using the wrapped error code" do
+        BatchApi::Response.should_receive(:new) do |args|
+          args.first.should == wrapped_err.status_code
+        end
+        operation.error_response(err)
+      end
+
+      it "creates a new BatchApi::Response with empty headers" do
+        BatchApi::Response.should_receive(:new) do |args|
+          args[1].should == {}
+        end
+        operation.error_response(err)
+      end
+
+      it "creates a new BatchApi::Response with empty headers" do
+        berr = stub
+        BatchApi::Error.stub(:new).with(err).and_return(berr)
+        BatchApi::Response.should_receive(:new) do |args|
+          args[2].should == berr
+        end
+        operation.error_response(err)
+      end
+
+      it "returns this new BatchApi::Response" do
+        operation.error_response(err).should be_a(BatchApi::Response)
+      end
+    end
   end
 
   let(:env) {
