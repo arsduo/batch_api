@@ -2,7 +2,14 @@ require 'spec_helper'
 require 'batch_api/operation'
 
 describe BatchApi::Operation do
-  let(:op_params) { { method: "POST", url: "/batch?foo=baz", params: {a: 2}, headers: {"foo" => "bar"} } }
+  let(:op_params) { {
+    method: "POST",
+    # this matches a route in our dummy application
+    url: "/endpoint?foo=baz",
+    params: {a: 2},
+    headers: {"foo" => "bar"}
+  } }
+
   # for env, see bottom of file - it's long
   let(:operation) { BatchApi::Operation.new(op_params, env) }
   let(:path_params) { {controller: "batch_api/batch", action: "batch"} }
@@ -33,7 +40,6 @@ describe BatchApi::Operation do
       operation.env.to_a.flatten.each_with_index do |obj, index|
         # this is a rough test for deep dup -- make sure the objects
         # that aren't symbols aren't actually the same objects in memory
-        puts "obj: #{obj}, #{obj.class}"
         if obj.is_a?(Hash) || obj.is_a?(Array)
           obj.object_id.should_not == flat_env[index].object_id
         end
@@ -68,16 +74,90 @@ describe BatchApi::Operation do
     it "updates the controller with the controller instance" do
       key = "action_controller.instance"
       processed_env[key].should_not == env[key]
-      # in this case, it's a batch controller
-      processed_env[key].should be_a(BatchApi::BatchController)
+      # in this case, it's an EndpointsController, based on our dummy app
+      processed_env[key].should be_a(EndpointsController)
     end
 
-    it "merges any headers in " do
+    it "merges any headers in in the right format" do
       key = "HTTP_FOO" # as defined above in op_params
 
       processed_env[key].should_not == env[key]
       # in this case, it's a batch controller
       processed_env[key].should == op_params[:headers]["foo"]
+    end
+
+    it "preserves existing headers" do
+      processed_env["HTTP_PREVIOUS_HEADERS"].should == env["HTTP_PREVIOUS_HEADERS"]
+    end
+
+    it "updates the method" do
+      key = "REQUEST_METHOD"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == "POST"
+    end
+
+    it "updates the REQUEST_URI" do
+      key = "REQUEST_URI"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == env["REQUEST_URI"].gsub(/\/batch.*/, op_params[:url])
+    end
+
+    it "updates the REQUEST_PATH with the path component (w/o params)" do
+      key = "REQUEST_PATH"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:url].split("?").first
+    end
+
+    it "updates the original fullpath" do
+      key = "ORIGINAL_FULLPATH"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:url]
+    end
+
+    it "updates the PATH_INFO" do
+      key = "PATH_INFO"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:url]
+    end
+
+    it "updates the rack query string" do
+      key = "rack.request.query_string"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:url].split("?").last
+    end
+
+    it "updates the QUERY_STRING" do
+      key = "QUERY_STRING"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:url].split("?").last
+    end
+
+    it "updates the params" do
+      key = "action_dispatch.request.parameters"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:params]
+    end
+
+    it "updates the request params" do
+      key = "action_dispatch.request.request_parameters"
+      processed_env[key].should_not == env[key]
+      processed_env[key].should == op_params[:params]
+    end
+
+    context "query_hash" do
+      it "sets it to params for a GET" do
+        operation.method = "get"
+        processed_env = operation.tap {|o| o.process_env}.env
+        key = "rack.request.query_hash"
+        processed_env[key].should_not == env[key]
+        processed_env[key].should == op_params[:params]
+      end
+
+      it "sets it to nil for a POST" do
+        key = "rack.request.query_hash"
+        processed_env[key].should_not == env[key]
+        processed_env[key].should be_nil
+      end
     end
   end
 
@@ -100,6 +180,7 @@ describe BatchApi::Operation do
       "HTTP_USER_AGENT"=>"curl/7.21.4 (universal-apple-darwin11.0) libcurl/7.21.4 OpenSSL/0.9.8r zlib/1.2.5",
       "HTTP_HOST"=>"localhost:3000",
       "HTTP_ACCEPT"=>"*/*",
+      "HTTP_PREVIOUS_HEADERS" => "value",
       "rack.version"=>[1,1],
       "rack.input"=>StringIO.new("{\"ops\":{}}"),
       "rack.errors"=>$stderr,

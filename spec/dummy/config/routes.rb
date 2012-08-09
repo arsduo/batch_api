@@ -3,6 +3,9 @@ Dummy::Application.routes.draw do
   # Test the Batch API in two formats: default and custom
   batch_api
   batch_api endpoint: "/foo/bar", via: "report"
+
+  post "/endpoint" => "endpoints#post"
+  get "/endpoint" => "endpoints#get"
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
