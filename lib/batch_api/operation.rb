@@ -21,28 +21,33 @@ module BatchApi
       @env = base_env.deep_dup
     end
 
-    # Public: given a URL and other operation details as specified above,
-    # identify the appropriate controller to execute the action.
+    # Internal: given a URL and other operation details as specified above,
+    # identify the appropriate controller and action to execute the action.
     #
-    # This method will raise an error if the route doesn't exist.
+    # Raises a routing error if the route doesn't exist.
+    #
+    # Returns the action object, which can be called with the environment.
     def identify_routing
       @path_params = Rails.application.routes.recognize_path(@url, @op)
       @controller = ActionDispatch::Routing::RouteSet::Dispatcher.new.controller(@path_params)
+      @controller.action(@path_params[:action])
     end
 
-    # Public: customize the request environment.  This is currently done
+    # Internal: customize the request environment.  This is currently done
     # manually and feels clunky and brittle, but is mostly likely fine, though
     # there are one or two environment parameters not yet adjusted.
     def process_env
       path, qs = @url.split("?")
 
       # rails routing
-      @env["action_dispatch.request.path_parameters"] = @path_param
-      @env["action_controller.instance"] = @controller
+      @env["action_dispatch.request.path_parameters"] = @path_params
+      # this isn't quite right, but hopefully it'll work
+      # since we're not executing any middleware
+      @env["action_controller.instance"] = @controller.new
 
       # Headers
       headrs = (@headers || {}).inject({}) do |heads, (k, v)|
-        heads["HTTP_" + k.gsub(/\-/, "_").upcase] = v
+        heads.tap {|h| h["HTTP_" + k.gsub(/\-/, "_").upcase] = v}
       end
       # preserve original headers unless explicitly overridden
       @env.merge!(headrs)
@@ -69,9 +74,8 @@ module BatchApi
     # occurs, it returns the same results as Rails would.
     def execute
       begin
-        identify_routing
+        action = identify_routing
         process_env
-        action = @controller.action(@path_param[:action])
         result = action.call(@env)
         BatchApi::Response.new(result)
       rescue => err
