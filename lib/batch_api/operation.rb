@@ -25,14 +25,9 @@ module BatchApi
     # occurs, it returns the same results as Rails would.
     def execute
       begin
-        puts "sart"
         action = identify_routing
-        puts "env"
         process_env
-        puts "making"
-        b = BatchApi::Response.new(action.call(@env))
-        puts "done"
-        b
+        BatchApi::Response.new(action.call(@env))
       rescue => err
         puts "Execution raised an #{err.class}: #{err.message}"
         puts err.backtrace.join("\n")
