@@ -9,9 +9,10 @@ class EndpointsController < ApplicationController
   end
 
   def post
-    cookies["POST"] = "goodbye"
-    response.headers["POST"] = "hello"
-    render :json => {result: "POST OK", headers: header_output, params: params.delete(:endpoint)}, status: 203
+    cookies["POST"] = "tschussikowski"
+    response.headers["POST"] = "guten tag"
+    response.headers["REQUEST_HEADERS"] = header_output
+    render :json => {result: "POST OK", params: params.delete(:endpoint)}, status: 203
   end
 
   private

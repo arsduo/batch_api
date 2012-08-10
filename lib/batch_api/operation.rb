@@ -29,8 +29,8 @@ module BatchApi
         process_env
         BatchApi::Response.new(action.call(@env))
       rescue => err
-        puts "Execution raised an #{err.class}: #{err.message}"
-        puts err.backtrace.join("\n")
+        # puts "Execution raised an #{err.class}: #{err.message}"
+        # puts err.backtrace.join("\n")
         error_response(err)
       end
     end
