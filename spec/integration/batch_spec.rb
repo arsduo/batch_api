@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "Batch API integration specs" do
-  def headerify(hash)
+  def headerize(hash)
     Hash[hash.map do |k, v|
       ["HTTP_#{k.to_s.upcase}", v.to_s]
     end]
@@ -84,7 +84,7 @@ describe "Batch API integration specs" do
       end
 
       it "verifies that the right headers were received" do
-        @result["headers"]["REQUEST_HEADERS"].should include(headerify(get_headers))
+        @result["headers"]["REQUEST_HEADERS"].should include(headerize(get_headers))
       end
 
       pending "returns the expected cookies" do
@@ -120,7 +120,7 @@ describe "Batch API integration specs" do
       end
 
       it "verifies that the right headers were received" do
-        @result["headers"]["REQUEST_HEADERS"].should include(headerify(post_headers))
+        @result["headers"]["REQUEST_HEADERS"].should include(headerize(post_headers))
       end
 
       pending "returns the expected cookies" do

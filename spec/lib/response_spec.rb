@@ -28,4 +28,6 @@ describe BatchApi::Response do
   it "sets cookies to the cookies attributes" do
     response.cookies.should == :cookies
   end
+
+  pending "it handles [] as response[2]"
 end
