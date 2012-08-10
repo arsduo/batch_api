@@ -21,6 +21,25 @@ module BatchApi
       @env = base_env.deep_dup
     end
 
+    # Execute a batch request, returning a BatchResponse object.  If an error
+    # occurs, it returns the same results as Rails would.
+    def execute
+      begin
+        puts "sart"
+        action = identify_routing
+        puts "env"
+        process_env
+        puts "making"
+        b = BatchApi::Response.new(action.call(@env))
+        puts "done"
+        b
+      rescue => err
+        puts "Execution raised an #{err.class}: #{err.message}"
+        puts err.backtrace.join("\n")
+        error_response(err)
+      end
+    end
+
     # Internal: given a URL and other operation details as specified above,
     # identify the appropriate controller and action to execute the action.
     #
@@ -68,22 +87,7 @@ module BatchApi
       @env["rack.request.query_hash"] = @method == "get" ? @params : nil
     end
 
-    # Execute a batch request, returning a BatchResponse object.  If an error
-    # occurs, it returns the same results as Rails would.
-    def execute
-      begin
-        action = identify_routing
-        process_env
-        BatchApi::Response.new(action.call(@env))
-      rescue => err
-        puts err.class
-        puts err.message
-        puts err.backtrace.join("\n")
-        error_response(err)
-      end
-    end
-
-    # Public: create a BatchResponse for an exception thrown during batch
+    # Internal: create a BatchResponse for an exception thrown during batch
     # processing.
     def error_response(err)
       wrapper = ActionDispatch::ExceptionWrapper.new(@env, err)
