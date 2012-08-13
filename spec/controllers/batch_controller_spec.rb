@@ -3,25 +3,18 @@ require 'batch_api/operation'
 
 describe BatchApi::BatchController do
   describe "#batch" do
-    it "creates batch ops for each operation using the request environment" do
-      ops = 10.times.collect {|i| ({"operation" => i.to_s}) }
-      ops.each do |o|
-        BatchApi::Operation.should_receive(:new).with(o, request.env).and_return(stub(:execute => ""))
-      end
-
-      xhr :post, :batch, ops: ops
-    end
-
-    it "returns the resultof the batch operation's execution as JSON and in order" do
+    it "returns the result of the batch operation's execution as JSON and in order" do
+      env = request.env
+      request.stub(:env).and_return(env)
       ops = 10.times.collect {|i| {"operation" => i.to_s} }
-      ops.each do |o|
-        BatchApi::Operation.should_receive(:new).and_return(stub(:execute => o["operation"]))
-      end
+      params = {ops: ops, sequential: true}
+      result = ops.map(&:to_s)
+      BatchApi::Processor.should_receive(:new).with(ops, request.env, hash_including(params)).and_return(result)
 
-      xhr :post, :batch, ops: ops
+      xhr :post, :batch, params
       json = JSON.parse(response.body)
       ops.each_with_index do |o, i|
-        json[i].should == i.to_s
+        json[i].should == ops[i].to_s
       end
     end
   end
