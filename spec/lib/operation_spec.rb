@@ -161,24 +161,6 @@ describe BatchApi::Operation do
       processed_env[key].should == op_params[:params]
     end
 
-    context "authorization" do
-      it "copies the basic auth header if the latter isn't present" do
-        stubby = stub
-        operation.env["Authorization"] = stubby
-        operation.env["HTTP_AUTHORIZATION"] = nil
-        operation.process_env
-        operation.env["HTTP_AUTHORIZATION"].should == stubby
-      end
-
-      it "doesn't overwrite basic auth header if the latter is present" do
-        stubby = stub
-        operation.env["Authorization"] = stubby
-        operation.env["HTTP_AUTHORIZATION"] = stub
-        operation.process_env
-        operation.env["HTTP_AUTHORIZATION"].should_not == stubby
-      end
-    end
-
     context "query_hash" do
       it "sets it to params for a GET" do
         operation.method = "get"
