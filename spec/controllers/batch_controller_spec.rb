@@ -5,11 +5,12 @@ describe BatchApi::BatchController do
   describe "#batch" do
     it "returns the result of the batch operation's execution as JSON and in order" do
       env = request.env
-      request.stub(:env).and_return(env)
       ops = 10.times.collect {|i| {"operation" => i.to_s} }
       params = {ops: ops, sequential: true}
       result = ops.map(&:to_s)
-      BatchApi::Processor.should_receive(:new).with(ops, request.env, hash_including(params)).and_return(result)
+
+      processor = stub("processor", :execute! => result)
+      BatchApi::Processor.should_receive(:new).with(ops, request.env, hash_including(params)).and_return(processor)
 
       xhr :post, :batch, params
       json = JSON.parse(response.body)

@@ -22,8 +22,8 @@ module BatchApi
     # Returns the new Processor instance.
     def initialize(ops, env, options = {})
       @env = env
-      @options = self.process_options(options)
       @ops = self.process_ops(ops)
+      @options = self.process_options(options)
     end
 
     # Public: the processing strategy to use, based on the options
