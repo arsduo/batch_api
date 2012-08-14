@@ -3,6 +3,8 @@ require 'batch_api/response'
 module BatchApi
   # Public: an individual batch operation.
   class Operation
+    class MalformedOperationError < ArgumentError; end
+
     attr_accessor :method, :url, :params, :headers
     attr_accessor :env, :result
 
@@ -16,6 +18,10 @@ module BatchApi
       @url = op[:url]
       @params = op[:params]
       @headers = op[:headers]
+
+      raise MalformedOperationError,
+        "BatchAPI operation must include method (received #{@method.inspect}) " +
+        "and url (received #{@url.inspect})" unless @method && @url
 
       # deep_dup to avoid unwanted changes across requests
       @env = base_env.deep_dup

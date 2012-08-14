@@ -18,9 +18,12 @@ module BatchApi
     # Raises OperationLimitExceeded if more operations are requested than
     # allowed by the BatchApi configuration.
     # Raises BadOptionError if other provided options are invalid.
+    # Raises ArgumentError if no operations are provided (nil or []).
     #
     # Returns the new Processor instance.
     def initialize(ops, env, options = {})
+      raise ArgumentError, "No operations provided" if ops.blank?
+
       @env = env
       @ops = self.process_ops(ops)
       @options = self.process_options(options)

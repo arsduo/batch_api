@@ -41,6 +41,11 @@ describe BatchApi::Processor do
         ops = (BatchApi.config.limit + 1).times.collect {|i| i}
         expect { BatchApi::Processor.new(ops, env, options) }.to raise_exception(BatchApi::Processor::OperationLimitExceeded)
       end
+
+      it "raises an ArgumentError if operations.blank?" do
+        expect { BatchApi::Processor.new(nil, env, options) }.to raise_exception(ArgumentError)
+        expect { BatchApi::Processor.new(nil, env, []) }.to raise_exception(ArgumentError)
+      end
     end
 
     describe "#strategy" do

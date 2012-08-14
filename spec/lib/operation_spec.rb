@@ -45,6 +45,23 @@ describe BatchApi::Operation do
         end
       end
     end
+
+    it "raises an MalformedOperationError if method or URL are missing" do
+      no_method = op_params.dup.tap {|o| o.delete(:method) }
+      expect {
+        BatchApi::Operation.new(no_method, env)
+      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+
+      no_url = op_params.dup.tap {|o| o.delete(:url) }
+      expect {
+        BatchApi::Operation.new(no_url, env)
+      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+
+      nothing = op_params.dup.tap {|o| o.delete(:url); o.delete(:method) }
+      expect {
+        BatchApi::Operation.new(nothing, env)
+      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+    end
   end
 
   describe "#identify_routing" do
