@@ -50,7 +50,7 @@ describe "Batch API integration specs" do
   } }
 
   before :each do
-    xhr :post, "/batch", {ops: [get_request, post_request]}.to_json, "CONTENT_TYPE" => "application/json"
+    xhr :post, "/batch", {ops: [get_request, post_request], sequential: true}.to_json, "CONTENT_TYPE" => "application/json"
   end
 
   it "returns a 200" do
