@@ -64,6 +64,13 @@ module BatchApi
       # preserve original headers unless explicitly overridden
       @env.merge!(headrs)
 
+      # handle basic auth
+      # Doorkeeper will accept Authorization as a key for the main request
+      # but seems to fail if it's not HTTP_AUTHORIZATION in batch operations
+      if @env["Authorization"] && !@env["HTTP_AUTHORIZATION"]
+        @env["HTTP_AUTHORIZATION"] = @env["Authorization"]
+      end
+
       # method
       @env["REQUEST_METHOD"] = @method.upcase
 
