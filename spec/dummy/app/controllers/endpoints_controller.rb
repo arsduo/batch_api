@@ -1,4 +1,8 @@
 class EndpointsController < ApplicationController
+  rescue_from StandardError do
+    render json: {error: true}, status: 500
+  end
+
   def get
     cookies["GET"] = "bye"
     response.headers["GET"] = "hello"
@@ -13,6 +17,10 @@ class EndpointsController < ApplicationController
     response.headers["POST"] = "guten tag"
     response.headers["REQUEST_HEADERS"] = header_output
     render :json => {result: "POST OK", params: params.delete(:endpoint)}, status: 203
+  end
+
+  def error
+    raise StandardError
   end
 
   private
