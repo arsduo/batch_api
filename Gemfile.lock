@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     batch_api (0.0.3)
-      rails (~> 3.2)
 
 GEM
   remote: http://rubygems.org/
@@ -67,6 +66,8 @@ GEM
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
+    rack-protection (1.2.0)
+      rack
     rack-ssl (1.3.2)
       rack
     rack-test (0.6.1)
@@ -108,6 +109,10 @@ GEM
       railties (>= 3.0)
       rspec (~> 2.11.0)
     ruby_gntp (0.3.4)
+    sinatra (1.3.2)
+      rack (~> 1.3, >= 1.3.6)
+      rack-protection (~> 1.2)
+      tilt (~> 1.3, >= 1.3.3)
     sprockets (2.1.3)
       hike (~> 1.2)
       rack (~> 1.0)
@@ -129,8 +134,10 @@ DEPENDENCIES
   guard
   guard-rspec
   jquery-rails
+  rails (~> 3.2)
   rb-fsevent
   rspec
   rspec-rails
   ruby_gntp
+  sinatra
   sqlite3
