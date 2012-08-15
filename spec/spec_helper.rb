@@ -18,6 +18,9 @@ end
 
 RSpec.configure do |config|
   config.before :each do
+    BatchApi.config.limit = 20
+    BatchApi.config.endpoint = "/batch"
+    BatchApi.config.verb = :post
   end
 end
 
