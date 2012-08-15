@@ -36,6 +36,10 @@ describe BatchApi::Processor do
       BatchApi::Processor.new(env, app).options.should == options
     end
 
+    it "makes the app available" do
+      BatchApi::Processor.new(env, app).app.should == app
+    end
+
     context "error conditions" do
       it "(currently) throws an error if sequential is not true" do
         env["action_dispatch.request.request_parameters"].delete("sequential")
