@@ -6,12 +6,12 @@ module BatchApi
     class MalformedOperationError < ArgumentError; end
 
     attr_accessor :method, :url, :params, :headers
-    attr_accessor :env, :result
+    attr_accessor :env, :app, :result
 
     # Public: create a new Batch Operation given the specifications for a batch
     # operation (as defined above) and the request environment for the main
     # batch request.
-    def initialize(op, base_env)
+    def initialize(op, base_env, app)
       @op = op
 
       @method = op[:method]
@@ -23,32 +23,20 @@ module BatchApi
         "BatchAPI operation must include method (received #{@method.inspect}) " +
         "and url (received #{@url.inspect})" unless @method && @url
 
+      @app = app
       # deep_dup to avoid unwanted changes across requests
-      @env = base_env.deep_dup
+      @env = BatchApi::Utils.deep_dup(base_env)
     end
 
     # Execute a batch request, returning a BatchResponse object.  If an error
     # occurs, it returns the same results as Rails would.
     def execute
       begin
-        action = identify_routing
         process_env
-        BatchApi::Response.new(action.call(@env))
+        BatchApi::Response.new(@app.call(@env))
       rescue => err
         error_response(err)
       end
-    end
-
-    # Internal: given a URL and other operation details as specified above,
-    # identify the appropriate controller and action to execute the action.
-    #
-    # Raises a routing error if the route doesn't exist.
-    #
-    # Returns the action object, which can be called with the environment.
-    def identify_routing
-      @path_params = Rails.application.routes.recognize_path(@url, @op)
-      @controller = ActionDispatch::Routing::RouteSet::Dispatcher.new.controller(@path_params)
-      @controller.action(@path_params[:action])
     end
 
     # Internal: customize the request environment.  This is currently done
@@ -56,12 +44,6 @@ module BatchApi
     # there are one or two environment parameters not yet adjusted.
     def process_env
       path, qs = @url.split("?")
-
-      # rails routing
-      @env["action_dispatch.request.path_parameters"] = @path_params
-      # this isn't quite right, but hopefully it'll work
-      # since we're not executing any middleware
-      @env["action_controller.instance"] = @controller.new
 
       # Headers
       headrs = (@headers || {}).inject({}) do |heads, (k, v)|
@@ -89,11 +71,10 @@ module BatchApi
     # Internal: create a BatchResponse for an exception thrown during batch
     # processing.
     def error_response(err)
-      wrapper = ActionDispatch::ExceptionWrapper.new(@env, err)
       BatchApi::Response.new([
-        wrapper.status_code,
+        500,
         {},
-        BatchApi::Error.new(err)
+        BatchApi::Error.new(err).render
       ])
     end
   end
