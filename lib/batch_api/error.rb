@@ -9,9 +9,6 @@ module BatchApi
       @backtrace = error.backtrace
     end
 
-    # Public: here for compatibility with BatchResponse interface.
-    attr_reader :cookies
-
     # Public: the error details as a hash, which can be returned
     # to clients as JSON.
     def body
@@ -25,6 +22,15 @@ module BatchApi
       end
     end
 
+    # Public: turn the error body into a Rack-compatible body component.
+    #
+    # Returns: an Array with the error body represented as JSON.
+    def render
+      [MultiJson.dump(body)]
+    end
+
+    # Internal: whether the backtrace should be exposed in the response.
+    # Currently Rails-specific, needs to be generalized (to ENV["RACK_ENV"])?
     def expose_backtrace?
       Rails.env.production?
     end
