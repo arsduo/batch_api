@@ -1,6 +1,8 @@
 require 'sinatra/base'
+require 'rack/contrib'
 
 class SinatraApp < Sinatra::Base
+  use Rack::PostBodyContentTypeParser
   use BatchApi::Middleware
 
   def get
