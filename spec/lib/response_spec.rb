@@ -3,10 +3,10 @@ require 'batch_api/response'
 
 describe BatchApi::Response do
 
-  let(:raw_response) { [200, {}, Struct.new(:body, :cookies).new(:body, :cookies)] }
+  let(:raw_response) { [200, {}, ["ab", "cd", "ef"]] }
   let(:response) { BatchApi::Response.new(raw_response) }
 
-  [:status, :body, :headers, :cookies].each do |attr|
+  [:status, :body, :headers].each do |attr|
     local_attr = attr
     it "has an accessor for #{local_attr}" do
       response.should respond_to(local_attr)
@@ -21,13 +21,7 @@ describe BatchApi::Response do
     response.headers.should == raw_response[1]
   end
 
-  it "sets body to the body attributes" do
-    response.body.should == :body
+  it "sets body to the string representation of the response body" do
+    response.body.should == raw_response[2].join
   end
-
-  it "sets cookies to the cookies attributes" do
-    response.cookies.should == :cookies
-  end
-
-  pending "it handles [] as response[2]"
 end

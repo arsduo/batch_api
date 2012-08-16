@@ -10,9 +10,12 @@ describe BatchApi::Processor do
   end
 
   let(:ops) { [ {url: "/endpoint", method: "get"} ] }
-  let(:options) { { sequential: true } }
-  let(:env) { {} }
-  let(:processor) { BatchApi::Processor.new(ops, env, options) }
+  let(:options) { { "sequential" => true } }
+  let(:env) { {
+    "action_dispatch.request.request_parameters" => {}.merge("ops" => ops).merge(options)
+  } }
+  let(:app) { stub("application", call: [200, {}, ["foo"]]) }
+  let(:processor) { BatchApi::Processor.new(env, app) }
 
   describe "#initialize" do
     # this may be brittle...consider refactoring?
@@ -21,30 +24,39 @@ describe BatchApi::Processor do
       operation_objects = 3.times.collect { stub("operation object") }
       operation_params = 3.times.collect do |i|
         stub("raw operation").tap do |o|
-          BatchApi::Operation.should_receive(:new).with(o, anything).and_return(operation_objects[i])
+          BatchApi::Operation.should_receive(:new).with(o, env, app).and_return(operation_objects[i])
         end
       end
 
-      BatchApi::Processor.new(operation_params, env, options).ops.should == operation_objects
+      env["action_dispatch.request.request_parameters"]["ops"] = operation_params
+      BatchApi::Processor.new(env, app).ops.should == operation_objects
     end
 
     it "makes the options available" do
-      BatchApi::Processor.new(ops, env, options).options.should == options
+      BatchApi::Processor.new(env, app).options.should == options
+    end
+
+    it "makes the app available" do
+      BatchApi::Processor.new(env, app).app.should == app
     end
 
     context "error conditions" do
       it "(currently) throws an error if sequential is not true" do
-        expect { BatchApi::Processor.new(ops, env, {}) }.to raise_exception(BatchApi::Processor::BadOptionError)
+        env["action_dispatch.request.request_parameters"].delete("sequential")
+        expect { BatchApi::Processor.new(env, app) }.to raise_exception(BatchApi::Processor::BadOptionError)
       end
 
       it "raise a OperationLimitExceeded error if too many ops provided" do
-        ops = (BatchApi.config.limit + 1).times.collect {|i| i}
-        expect { BatchApi::Processor.new(ops, env, options) }.to raise_exception(BatchApi::Processor::OperationLimitExceeded)
+        ops = (BatchApi.config.limit + 1).to_i.times.collect {|i| i}
+        env["action_dispatch.request.request_parameters"]["ops"] = ops
+        expect { BatchApi::Processor.new(env, app) }.to raise_exception(BatchApi::Processor::OperationLimitExceeded)
       end
 
       it "raises an ArgumentError if operations.blank?" do
-        expect { BatchApi::Processor.new(nil, env, options) }.to raise_exception(ArgumentError)
-        expect { BatchApi::Processor.new(nil, env, []) }.to raise_exception(ArgumentError)
+        env["action_dispatch.request.request_parameters"]["ops"] = nil
+        expect { BatchApi::Processor.new(env, app) }.to raise_exception(ArgumentError)
+        env["action_dispatch.request.request_parameters"]["ops"] = []
+        expect { BatchApi::Processor.new(env, app) }.to raise_exception(ArgumentError)
       end
     end
 

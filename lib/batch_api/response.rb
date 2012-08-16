@@ -6,17 +6,18 @@ module BatchApi
   # outcome.
   class Response
     # Public: the attributes of the HTTP response.
-    attr_accessor :status, :body, :headers, :cookies
+    attr_accessor :status, :body, :headers
 
     # Public: create a new response representation from a Rack-compatible
     # response (e.g. [status, headers, response_object]).
     def initialize(response)
-      @status = response.first
-      @headers = response[1]
-
-      response_object = response[2]
-      @body = response_object.body
-      @cookies = response_object.cookies
+      @status, @headers = *response
+      # bodies have to respond to .each, but may otherwise
+      # not be suitable for JSON serialization
+      # (I'm looking at you, ActionDispatch::Response)
+      # so turn it into a string
+      @body = ""
+      response[2].each {|str| @body << str}
     end
   end
 end

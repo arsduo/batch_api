@@ -11,11 +11,12 @@ describe BatchApi::Operation do
   } }
 
   # for env, see bottom of file - it's long
-  let(:operation) { BatchApi::Operation.new(op_params, env) }
+  let(:operation) { BatchApi::Operation.new(op_params, env, app) }
+  let(:app) { stub("application", call: [200, {}, ["foo"]]) }
   let(:path_params) { {controller: "batch_api/batch", action: "batch"} }
 
   describe "accessors" do
-    [:method, :url, :params, :headers, :env, :result].each do |a|
+    [:method, :url, :params, :headers, :env, :app, :result].each do |a|
       attr = a
       it "has an accessor for #{attr}" do
         value = stub
@@ -46,54 +47,26 @@ describe BatchApi::Operation do
       end
     end
 
-    it "raises an MalformedOperationError if method or URL are missing" do
+    it "raises a MalformedOperationError if method or URL are missing" do
       no_method = op_params.dup.tap {|o| o.delete(:method) }
       expect {
-        BatchApi::Operation.new(no_method, env)
+        BatchApi::Operation.new(no_method, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       no_url = op_params.dup.tap {|o| o.delete(:url) }
       expect {
-        BatchApi::Operation.new(no_url, env)
+        BatchApi::Operation.new(no_url, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       nothing = op_params.dup.tap {|o| o.delete(:url); o.delete(:method) }
       expect {
-        BatchApi::Operation.new(nothing, env)
+        BatchApi::Operation.new(nothing, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
     end
   end
 
-  describe "#identify_routing" do
-    # this is hard to test, since it's testing rails internals
-    # so we'll just verify we get a callable object, and the rest
-    # we'll save for integration tests
-    it "gets an action object which can be called" do
-      Rails.application.routes.stub(:recognize_path).and_return(path_params)
-      operation.identify_routing.should respond_to(:call)
-    end
-  end
-
   describe "#process_env" do
-    before :each do
-      operation.identify_routing
-    end
-
     let(:processed_env) { operation.tap {|o| o.process_env}.env }
-
-    # long and boring and possibly brittle tests
-    it "updates the controller with the path parameters" do
-      key = "action_dispatch.request.path_parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].keys.should include(:action, :controller)
-    end
-
-    it "updates the controller with the controller instance" do
-      key = "action_controller.instance"
-      processed_env[key].should_not == env[key]
-      # in this case, it's an EndpointsController, based on our dummy app
-      processed_env[key].should be_a(EndpointsController)
-    end
 
     it "merges any headers in in the right format" do
       key = "HTTP_FOO" # as defined above in op_params
@@ -149,18 +122,6 @@ describe BatchApi::Operation do
       processed_env[key].should == op_params[:url].split("?").last
     end
 
-    it "updates the params" do
-      key = "action_dispatch.request.parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params[:params]
-    end
-
-    it "updates the request params" do
-      key = "action_dispatch.request.request_parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params[:params]
-    end
-
     context "query_hash" do
       it "sets it to params for a GET" do
         operation.method = "get"
@@ -185,24 +146,20 @@ describe BatchApi::Operation do
         {header: "footer"},
         stub(body: "{\"data\":2}", cookies: nil)
       ] }
-
-      let(:action) { Proc.new { result } }
       let(:processed_env) { stub }
 
       before :each do
-        operation.stub(:identify_routing).and_return(action)
         operation.stub(:process_env) { operation.env = processed_env }
       end
 
-      it "calls the route identified with the processed environment" do
-        operation.should_receive(:identify_routing).and_return(action)
-        operation.stub(:process_env) { operation.env = processed_env }
-        action.should_receive(:call).with(processed_env).and_return(result)
+      it "executes the call with the application" do
+        app.should_receive(:call).with(processed_env)
         operation.execute
       end
 
       it "returns a BatchAPI::Response made from the result" do
         response = stub
+        app.stub(:call).and_return(result)
         BatchApi::Response.should_receive(:new).with(result).and_return(response)
         operation.execute.should == response
       end
@@ -210,15 +167,7 @@ describe BatchApi::Operation do
       it "creates and returns an error if one is raised in the routing" do
         err = StandardError.new
         result = stub
-        operation.stub(:identify_routing).and_raise(err)
-        operation.should_receive(:error_response).with(err).and_return(result)
-        operation.execute.should == result
-      end
-
-      it "creates and returns an error if one is raised in the method" do
-        err = StandardError.new
-        result = stub
-        action.stub(:call).and_raise(err)
+        app.stub(:call).and_raise(err)
         operation.should_receive(:error_response).with(err).and_return(result)
         operation.execute.should == result
       end
@@ -226,14 +175,10 @@ describe BatchApi::Operation do
 
     describe "#error_response" do
       let(:err) { StandardError.new.tap {|e| e.set_backtrace(Kernel.caller)} }
-      let(:wrapped_err) { stub(status_code: 30303) }
-      before :each do
-        ActionDispatch::ExceptionWrapper.stub(:new).and_return(wrapped_err)
-      end
 
-      it "creates a new BatchApi::Response using the wrapped error code" do
+      it "creates a new BatchApi::Response with a 500 status" do
         BatchApi::Response.should_receive(:new) do |args|
-          args.first.should == wrapped_err.status_code
+          args.first.should == 500
         end
         operation.error_response(err)
       end
@@ -245,11 +190,13 @@ describe BatchApi::Operation do
         operation.error_response(err)
       end
 
-      it "creates a new BatchApi::Response with empty headers" do
-        berr = stub
+      it "creates a new BatchApi::Response with batch errors" do
+        berr = stub("error")
         BatchApi::Error.stub(:new).with(err).and_return(berr)
+        rendered = stub("rendered")
+        berr.stub(:render).and_return(rendered)
         BatchApi::Response.should_receive(:new) do |args|
-          args[2].should == berr
+          args[2].should == rendered
         end
         operation.error_response(err)
       end
