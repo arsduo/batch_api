@@ -7,6 +7,11 @@ describe "Batch API integration specs" do
     end]
   end
 
+  before :all do
+    BatchApi.config.endpoint = "/batch"
+    BatchApi.config.verb = :post
+  end
+
   # these are defined in the dummy app's endpoints controller
   let(:get_headers) { {foo: :bar} }
   let(:get_params) { {other: :value } }
