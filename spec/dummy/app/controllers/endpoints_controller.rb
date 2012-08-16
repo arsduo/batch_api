@@ -1,8 +1,4 @@
 class EndpointsController < ApplicationController
-  rescue_from StandardError do
-    render json: {error: true}, status: 500
-  end
-
   def get
     cookies["GET"] = "bye"
     response.headers["GET"] = "hello"

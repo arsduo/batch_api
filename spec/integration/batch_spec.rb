@@ -61,7 +61,7 @@ describe "Batch API integration specs" do
 
   let(:error_response) { {
     status: 500,
-    body: { error: true }
+    body: { error: { message: "StandardError" } }
   } }
 
   let(:missing_request) { {
@@ -164,11 +164,11 @@ describe "Batch API integration specs" do
     end
 
     it "returns the right status" do
-      @result["status"].should == 500
+      @result["status"].should == error_response[:status]
     end
 
     it "returns the right status" do
-      @result["body"].should == MultiJson.dump(error: true)
+      @result["body"].should == error_response[:body].to_json
     end
   end
 

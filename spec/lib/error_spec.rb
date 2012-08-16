@@ -12,12 +12,12 @@ describe BatchApi::Error do
 
   describe "#body" do
     it "includes the message in the body" do
-      error.body[:message].should == exception.message
+      error.body[:error][:message].should == exception.message
     end
 
     it "includes the backtrace if it should be there" do
       error.stub(:expose_backtrace?).and_return(true)
-      error.body[:backtrace].should == exception.backtrace
+      error.body[:error][:backtrace].should == exception.backtrace
     end
 
     it "includes the backtrace if it should be there" do
