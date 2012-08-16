@@ -15,6 +15,10 @@ class EndpointsController < ApplicationController
     render :json => {result: "POST OK", params: params.delete(:endpoint)}, status: 203
   end
 
+  def error
+    raise StandardError
+  end
+
   private
 
   def header_output

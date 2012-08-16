@@ -1,4 +1,5 @@
 require 'batch_api/processor/strategies/sequential'
+require 'batch_api/operation'
 
 module BatchApi
   class Processor
@@ -8,12 +9,12 @@ module BatchApi
     # Raised if a provided option is invalid.
     class BadOptionError < StandardError; end
 
-    attr_reader :ops, :options
+    attr_reader :ops, :options, :app
 
     # Public: create a new Processor.
     #
-    # ops - an array of operations hashes
-    # options - any other options
+    # env - a Rack environment hash
+    # app - a Rack application
     #
     # Raises OperationLimitExceeded if more operations are requested than
     # allowed by the BatchApi configuration.
@@ -21,12 +22,11 @@ module BatchApi
     # Raises ArgumentError if no operations are provided (nil or []).
     #
     # Returns the new Processor instance.
-    def initialize(ops, env, options = {})
-      raise ArgumentError, "No operations provided" if ops.blank?
-
+    def initialize(env, app)
+      @app = app
       @env = env
-      @ops = self.process_ops(ops)
-      @options = self.process_options(options)
+      @ops = self.process_ops
+      @options = self.process_options
     end
 
     # Public: the processing strategy to use, based on the options
@@ -54,14 +54,17 @@ module BatchApi
     # allowed by the BatchApi configuration.
     #
     # Returns an array of BatchApi::Operation objects
-    def process_ops(ops)
-      if ops.length > BatchApi.config.limit
+    def process_ops
+      ops = params.delete("ops")
+      if !ops || ops.empty?
+        raise ArgumentError, "No operations provided"
+      elsif ops.length > BatchApi.config.limit
         raise OperationLimitExceeded,
           "Only #{BatchApi.config.limit} operations can be submitted at once, " +
           "#{ops.length} were provided"
       else
         ops.map do |op|
-          BatchApi::Operation.new(op, @env)
+          BatchApi::Operation.new(op, @env, @app)
         end
       end
     end
@@ -73,9 +76,15 @@ module BatchApi
     # options - an options hash
     #
     # Returns the valid options hash.
-    def process_options(options)
-      raise BadOptionError, "Sequential flag is currently required" unless options[:sequential]
-      options
+    def process_options
+      raise BadOptionError, "Sequential flag is currently required" unless params["sequential"]
+      params
+    end
+
+    # Internal: a convenience method to the parameters hash provided by
+    # Rack.
+    def params
+      @env["action_dispatch.request.request_parameters"]
     end
   end
 end

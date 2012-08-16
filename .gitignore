@@ -10,3 +10,5 @@ test/dummy/.sass-cache
 spec/dummy/log/test.log
 *.log
 .rbx/
+spec/dummy/tmp/
+spec/dummy/db/development.sqlite3

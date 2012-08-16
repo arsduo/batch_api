@@ -7,6 +7,11 @@ describe "Batch API integration specs" do
     end]
   end
 
+  before :all do
+    BatchApi.config.endpoint = "/batch"
+    BatchApi.config.verb = :post
+  end
+
   # these are defined in the dummy app's endpoints controller
   let(:get_headers) { {foo: :bar} }
   let(:get_params) { {other: :value } }
@@ -49,8 +54,36 @@ describe "Batch API integration specs" do
     cookies: { "POST" => "tschussikowski" }
   } }
 
+  let(:error_request) { {
+    url: "/endpoint/error",
+    method: "get"
+  } }
+
+  let(:error_response) { {
+    status: 500,
+    body: { error: { message: "StandardError" } }
+  } }
+
+  let(:missing_request) { {
+    url: "/dont/work",
+    method: "delete"
+  } }
+
+  let(:missing_response) { {
+    status: 404,
+    body: {}
+  } }
+
   before :each do
-    xhr :post, "/batch", {ops: [get_request, post_request], sequential: true}.to_json, "CONTENT_TYPE" => "application/json"
+    xhr :post, "/batch", {
+      ops: [
+        get_request,
+        post_request,
+        error_request,
+        missing_request
+      ],
+      sequential: true
+    }.to_json, "CONTENT_TYPE" => "application/json"
   end
 
   it "returns a 200" do
@@ -85,10 +118,6 @@ describe "Batch API integration specs" do
 
       it "verifies that the right headers were received" do
         @result["headers"]["REQUEST_HEADERS"].should include(headerize(get_headers))
-      end
-
-      pending "returns the expected cookies" do
-        @result["cookies"].should include(get_result[:cookies])
       end
     end
   end
@@ -126,6 +155,30 @@ describe "Batch API integration specs" do
       pending "returns the expected cookies" do
         @result["cookies"].should include(post_result[:cookies])
       end
+    end
+  end
+
+  context "for a request that returns error" do
+    before :each do
+      @result = JSON.parse(response.body)[2]
+    end
+
+    it "returns the right status" do
+      @result["status"].should == error_response[:status]
+    end
+
+    it "returns the right status" do
+      @result["body"].should == error_response[:body].to_json
+    end
+  end
+
+  context "for a request that returns error" do
+    before :each do
+      @result = JSON.parse(response.body)[3]
+    end
+
+    it "returns the right status" do
+      @result["status"].should == 404
     end
   end
 end
