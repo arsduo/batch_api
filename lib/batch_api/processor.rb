@@ -13,8 +13,8 @@ module BatchApi
 
     # Public: create a new Processor.
     #
-    # ops - an array of operations hashes
-    # options - any other options
+    # env - a Rack environment hash
+    # app - a Rack application
     #
     # Raises OperationLimitExceeded if more operations are requested than
     # allowed by the BatchApi configuration.

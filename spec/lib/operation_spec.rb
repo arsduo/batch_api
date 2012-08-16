@@ -47,7 +47,7 @@ describe BatchApi::Operation do
       end
     end
 
-    it "raises an MalformedOperationError if method or URL are missing" do
+    it "raises a MalformedOperationError if method or URL are missing" do
       no_method = op_params.dup.tap {|o| o.delete(:method) }
       expect {
         BatchApi::Operation.new(no_method, env, app)

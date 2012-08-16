@@ -36,6 +36,10 @@ describe BatchApi::Processor do
       BatchApi::Processor.new(env, app).options.should == options
     end
 
+    it "makes the app available" do
+      BatchApi::Processor.new(env, app).app.should == app
+    end
+
     context "error conditions" do
       it "(currently) throws an error if sequential is not true" do
         env["action_dispatch.request.request_parameters"].delete("sequential")
@@ -43,7 +47,7 @@ describe BatchApi::Processor do
       end
 
       it "raise a OperationLimitExceeded error if too many ops provided" do
-        ops = (BatchApi.config.limit + 1).times.collect {|i| i}
+        ops = (BatchApi.config.limit + 1).to_i.times.collect {|i| i}
         env["action_dispatch.request.request_parameters"]["ops"] = ops
         expect { BatchApi::Processor.new(env, app) }.to raise_exception(BatchApi::Processor::OperationLimitExceeded)
       end

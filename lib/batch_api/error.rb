@@ -12,7 +12,7 @@ module BatchApi
     # Public: the error details as a hash, which can be returned
     # to clients as JSON.
     def body
-      if expose_backtrace?
+      message = if expose_backtrace?
         {
           message: @message,
           backtrace: @backtrace
@@ -20,6 +20,7 @@ module BatchApi
       else
         { message: @message }
       end
+      { error: message }
     end
 
     # Public: turn the error body into a Rack-compatible body component.
