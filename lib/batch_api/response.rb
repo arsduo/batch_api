@@ -12,12 +12,24 @@ module BatchApi
     # response (e.g. [status, headers, response_object]).
     def initialize(response)
       @status, @headers = *response
+      @body = process_body(response[2])
+    end
+
+    private
+
+    def process_body(body_pieces)
       # bodies have to respond to .each, but may otherwise
       # not be suitable for JSON serialization
       # (I'm looking at you, ActionDispatch::Response)
       # so turn it into a string
-      @body = ""
-      response[2].each {|str| @body << str}
+      base_body = ""
+      body_pieces.each {|str| base_body << str}
+      should_decode? ? MultiJson.load(base_body) : base_body
+    end
+
+    def should_decode?
+      @headers["Content-Type"] == "application/json" &&
+        BatchApi.config.decode_json_responses
     end
   end
 end
