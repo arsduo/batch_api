@@ -8,7 +8,8 @@ module BatchApi
 
     def call(env)
       if batch_request?(env)
-        result = BatchApi::Processor.new(env, @app).execute!
+        request = request_klass.new(env)
+        result = BatchApi::Processor.new(request, @app).execute!
         [200, {"Content-Type" => "application/json"}, [MultiJson.dump(result)]]
       else
         @app.call(env)
@@ -20,6 +21,10 @@ module BatchApi
     def batch_request?(env)
       env["PATH_INFO"] == BatchApi.config.endpoint &&
         env["REQUEST_METHOD"] == BatchApi.config.verb.to_s.upcase
+    end
+
+    def request_klass
+      defined?(ActionDispatch) ? ActionDispatch::Request : Rack::Request
     end
   end
 end
