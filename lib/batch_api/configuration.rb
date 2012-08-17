@@ -7,13 +7,19 @@ module BatchApi
     # "/batch)
     # - verb: through which it's accessed (default "POST")
     # - limit: how many requests can be processed in a single request
+    # (default 50)
+    # decode_json_responses - automatically decode JSON response bodies,
+    # so they don't get double-decoded (e.g. when you decode the batch
+    # response, the bodies are already objects).
     attr_accessor :verb, :endpoint, :limit
+    attr_accessor :decode_json_responses
 
     # Default values for configuration variables
     def initialize
       @verb = :post
       @endpoint = "/batch"
-      @limit = 20
+      @limit = 50
+      @decode_json_responses = true
     end
   end
 end

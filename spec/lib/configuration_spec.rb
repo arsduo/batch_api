@@ -36,7 +36,19 @@ describe BatchApi::Configuration do
       end
 
       it "defaults verb to /batch" do
-        config.limit.should == 20
+        config.limit.should == 50
+      end
+    end
+
+    describe "#decode_json_responses" do
+      it "has an accessor for decode_json_responses" do
+        stubby = stub
+        config.decode_json_responses = stubby
+        config.decode_json_responses.should == stubby
+      end
+
+      it "defaults decode_json_responses to true" do
+        config.decode_json_responses.should be_true
       end
     end
   end
