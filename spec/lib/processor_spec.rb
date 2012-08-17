@@ -9,7 +9,7 @@ describe BatchApi::Processor do
     BatchApi::Processor::BadOptionError.superclass.should == StandardError
   end
 
-  let(:ops) { [ {url: "/endpoint", method: "get"} ] }
+  let(:ops) { [ {"url" => "/endpoint", "method" => "get"} ] }
   let(:options) { { "sequential" => true } }
   let(:env) { {
     "CONTENT_TYPE"=>"application/x-www-form-urlencoded",
