@@ -1,3 +1,6 @@
+v0.0.5
+* Add setting to decode JSON responses before sending batch results
+
 v0.0.4
 * Switch from Rails-based process to a Rack middleware
 * Improve tests
