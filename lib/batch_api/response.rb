@@ -28,7 +28,7 @@ module BatchApi
     end
 
     def should_decode?
-      @headers["Content-Type"] == "application/json" &&
+      @headers["Content-Type"] =~ /^application\/json/ &&
         BatchApi.config.decode_json_responses
     end
   end
