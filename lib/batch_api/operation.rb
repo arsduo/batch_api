@@ -33,10 +33,11 @@ module BatchApi
     def execute
       begin
         process_env
-        BatchApi::Response.new(@app.call(@env))
+        response = @app.call(@env)
       rescue => err
-        error_response(err)
+        response = BatchApi::Error.new(err).render
       end
+      BatchApi::Response.new(response)
     end
 
     # Internal: customize the request environment.  This is currently done
@@ -67,16 +68,6 @@ module BatchApi
       @env["action_dispatch.request.parameters"] = @params
       @env["action_dispatch.request.request_parameters"] = @params
       @env["rack.request.query_hash"] = @method == "get" ? @params : nil
-    end
-
-    # Internal: create a BatchResponse for an exception thrown during batch
-    # processing.
-    def error_response(err)
-      BatchApi::Response.new([
-        500,
-        {},
-        BatchApi::Error.new(err).render
-      ])
     end
   end
 end

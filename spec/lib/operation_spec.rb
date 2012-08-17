@@ -182,45 +182,19 @@ describe BatchApi::Operation do
         operation.execute.should == response
       end
 
-      it "creates and returns an error if one is raised in the routing" do
+      it "returns a BatchApi::Response from a BatchError for errors" do
         err = StandardError.new
-        result = stub
+        result, rendered, response = stub, stub, stub
+        b_err = stub("batch error", render: rendered)
+
+        # simulate the error
         app.stub(:call).and_raise(err)
-        operation.should_receive(:error_response).with(err).and_return(result)
-        operation.execute.should == result
-      end
-    end
-
-    describe "#error_response" do
-      let(:err) { StandardError.new.tap {|e| e.set_backtrace(Kernel.caller)} }
-
-      it "creates a new BatchApi::Response with a 500 status" do
-        BatchApi::Response.should_receive(:new) do |args|
-          args.first.should == 500
-        end
-        operation.error_response(err)
-      end
-
-      it "creates a new BatchApi::Response with empty headers" do
-        BatchApi::Response.should_receive(:new) do |args|
-          args[1].should == {}
-        end
-        operation.error_response(err)
-      end
-
-      it "creates a new BatchApi::Response with batch errors" do
-        berr = stub("error")
-        BatchApi::Error.stub(:new).with(err).and_return(berr)
-        rendered = stub("rendered")
-        berr.stub(:render).and_return(rendered)
-        BatchApi::Response.should_receive(:new) do |args|
-          args[2].should == rendered
-        end
-        operation.error_response(err)
-      end
-
-      it "returns this new BatchApi::Response" do
-        operation.error_response(err).should be_a(BatchApi::Response)
+        # we'll create the BatchError
+        BatchApi::Error.should_receive(:new).with(err).and_return(b_err)
+        # render that as the response
+        BatchApi::Response.should_receive(:new).with(rendered).and_return(response)
+        # and return the response overall
+        operation.execute.should == response
       end
     end
   end
