@@ -5,7 +5,7 @@ class SinatraApp < Sinatra::Base
   use Rack::PostBodyContentTypeParser
   use BatchApi::Middleware
 
-  def get
+  get "/endpoint" do
     headers["GET"] = "hello"
     # including this in the body would mess the body up
     # due to the other headers inserted
@@ -15,22 +15,22 @@ class SinatraApp < Sinatra::Base
     status 422
     {
       result: "GET OK",
-      params: params.delete(:endpoint)
-    }
+      params: params.except(:endpoint)
+    }.to_json
   end
 
-  def post
+  post "/endpoint" do
     headers["POST"] = "guten tag"
     headers["REQUEST_HEADERS"] = header_output
     content_type :json
     status 203
     {
       result: "POST OK",
-      params: params.delete(:endpoint)
-    }
+      params: params.except(:endpoint)
+    }.to_json
   end
 
-  def error
+  get "/endpoint/error" do
     raise StandardError
   end
 
