@@ -23,4 +23,3 @@ RSpec.configure do |config|
     BatchApi.config.verb = :post
   end
 end
-

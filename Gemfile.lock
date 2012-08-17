@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    batch_api (0.0.3)
+    batch_api (0.0.5)
 
 GEM
   remote: http://rubygems.org/
