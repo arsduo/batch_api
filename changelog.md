@@ -1,3 +1,7 @@
+v0.0.4
+* Switch from Rails-based process to a Rack middleware
+* Improve tests
+
 v0.0.3
 * Encapsulate processing into a Processor module
 * Prepare for parallel processing in the future
