@@ -1,3 +1,6 @@
+v0.0.5
+* Refactor Rack middleware to be Sinatra-compatible
+
 v0.0.4
 * Switch from Rails-based process to a Rack middleware
 * Improve tests
