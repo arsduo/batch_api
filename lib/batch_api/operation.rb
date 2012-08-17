@@ -14,10 +14,10 @@ module BatchApi
     def initialize(op, base_env, app)
       @op = op
 
-      @method = op[:method]
-      @url = op[:url]
-      @params = op[:params]
-      @headers = op[:headers]
+      @method = op["method"]
+      @url = op["url"]
+      @params = op["params"]
+      @headers = op["headers"]
 
       raise MalformedOperationError,
         "BatchAPI operation must include method (received #{@method.inspect}) " +
@@ -63,6 +63,7 @@ module BatchApi
       @env["rack.request.query_string"] = @env["QUERY_STRING"] = qs
 
       # parameters
+      @env["rack.request.form_hash"] = @params
       @env["action_dispatch.request.parameters"] = @params
       @env["action_dispatch.request.request_parameters"] = @params
       @env["rack.request.query_hash"] = @method == "get" ? @params : nil
