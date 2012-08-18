@@ -41,7 +41,7 @@ class SinatraApp < Sinatra::Base
     # request.headers has a ton of additional information we don't want
     # and that reference the request itself, causing an infinite loop
     headers.inject({}) do |h, (k, v)|
-      h.tap {|hash| hash[k.to_s] = v.to_s if k =~ /HTTP_/}
+      h.tap {|hash| hash[k.to_s] = v.to_s}
     end
   end
 end
