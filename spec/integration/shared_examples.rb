@@ -27,8 +27,7 @@ shared_examples_for "integrating with a server" do
       "result" => "GET OK",
       "params" => get_params
     },
-    headers: { "GET" => "hello" },
-    cookies: { "GET" => "bye" }
+    headers: { "GET" => "hello" }
   } }
 
   # these are defined in the dummy app's endpoints controller
@@ -95,7 +94,6 @@ shared_examples_for "integrating with a server" do
       end
 
       it "returns the body raw if decode_json_responses = false" do
-        # BatchApi.config.decode_bodies = false
         BatchApi.config.stub(:decode_json_responses).and_return(false)
         xhr :post, "/batch", {ops: [get_request], sequential: true}.to_json,
         "CONTENT_TYPE" => "application/json"
@@ -160,7 +158,7 @@ shared_examples_for "integrating with a server" do
     end
   end
 
-  context "for a request that returns error" do
+  context "for a request that returns an error" do
     before :each do
       @result = JSON.parse(response.body)[2]
     end
