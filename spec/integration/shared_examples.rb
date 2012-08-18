@@ -47,8 +47,7 @@ shared_examples_for "integrating with a server" do
       "result" => "POST OK",
       "params" => post_params
     },
-    headers: { "POST" => "guten tag" },
-    cookies: { "POST" => "tschussikowski" }
+    headers: { "POST" => "guten tag" }
   } }
 
   let(:error_request) { {
@@ -150,10 +149,6 @@ shared_examples_for "integrating with a server" do
 
       it "verifies that the right headers were received" do
         @result["headers"]["REQUEST_HEADERS"].should include(headerize(post_headers))
-      end
-
-      pending "returns the expected cookies" do
-        @result["cookies"].should include(post_result[:cookies])
       end
     end
   end
