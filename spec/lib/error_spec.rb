@@ -27,8 +27,16 @@ describe BatchApi::Error do
   end
 
   describe "#render" do
-    it "returns an array containing the JSONified body" do
-      error.render.should == [MultiJson.dump(error.body)]
+    it "returns 500 status" do
+      error.render[0].should == 500
+    end
+
+    it "returns json content type" do
+      error.render[1].should == {"Content-Type" => "application/json"}
+    end
+
+    it "returns the JSONified body as the 2nd" do
+      error.render[2].should == [MultiJson.dump(error.body)]
     end
   end
 

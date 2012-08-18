@@ -1,3 +1,6 @@
+v0.0.6
+* Refactor Rack middleware to be Sinatra-compatible
+
 v0.0.5
 * Add setting to decode JSON responses before sending batch results
 
