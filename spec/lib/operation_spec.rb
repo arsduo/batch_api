@@ -34,6 +34,16 @@ describe BatchApi::Operation do
       end
     end
 
+    it "defaults params to {} if not provided" do
+      op = BatchApi::Operation.new(op_params.except("params"), env, app)
+      op.params.should == {}
+    end
+
+    it "defaults headers to {} if not provided" do
+      op = BatchApi::Operation.new(op_params.except("headers"), env, app)
+      op.headers.should == {}
+    end
+
     it "does a deep dup of the env" do
       operation.env.should == env
 

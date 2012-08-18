@@ -16,8 +16,8 @@ module BatchApi
 
       @method = op["method"]
       @url = op["url"]
-      @params = op["params"]
-      @headers = op["headers"]
+      @params = op["params"] || {}
+      @headers = op["headers"] || {}
 
       raise MalformedOperationError,
         "BatchAPI operation must include method (received #{@method.inspect}) " +
@@ -61,7 +61,8 @@ module BatchApi
       @env["REQUEST_PATH"] = path
       @env["ORIGINAL_FULLPATH"] = @env["PATH_INFO"] = @url
 
-      @env["rack.request.query_string"] = @env["QUERY_STRING"] = qs
+      @env["rack.request.query_string"] = qs
+      @env["QUERY_STRING"] = qs
 
       # parameters
       @env["rack.request.form_hash"] = @params
