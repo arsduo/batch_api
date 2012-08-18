@@ -38,10 +38,11 @@ class SinatraApp < Sinatra::Base
 
   def header_output
     # we only want the headers that were sent by the client
-    # request.headers has a ton of additional information we don't want
+    # headers in sinatra are just read directly from env
+    # env has a ton of additional information we don't want
     # and that reference the request itself, causing an infinite loop
-    headers.inject({}) do |h, (k, v)|
-      h.tap {|hash| hash[k.to_s] = v.to_s}
+    env.inject({}) do |h, (k, v)|
+      h.tap {|hash| hash[k.to_s] = v.to_s if k =~ /HTTP_/}
     end
   end
 end
