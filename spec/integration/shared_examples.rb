@@ -71,6 +71,7 @@ shared_examples_for "integrating with a server" do
   } }
 
   before :each do
+    @t = Time.now
     xhr :post, "/batch", {
       ops: [
         get_request,
@@ -84,6 +85,14 @@ shared_examples_for "integrating with a server" do
 
   it "returns a 200" do
     response.status.should == 200
+  end
+
+  it "includes results" do
+    JSON.parse(response.body)["results"].should be_a(Array)
+  end
+
+  it "includes the timestamp" do
+    JSON.parse(response.body)["timestamp"].to_i.should be_within(100).of(@t.to_i)
   end
 
   context "for a get request" do

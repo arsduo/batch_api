@@ -30,6 +30,8 @@ module BatchApi
       @env = request.env
       @ops = self.process_ops
       @options = self.process_options
+
+      @start_time = Time.now.to_i
     end
 
     # Public: the processing strategy to use, based on the options
@@ -56,7 +58,8 @@ module BatchApi
     # Returns a hash ready to go to the user
     def format_response(operation_results)
       {
-        "results" => operation_results
+        "results" => operation_results,
+        "timestamp" => @start_time.to_s
       }
     end
 
