@@ -3,11 +3,13 @@ require 'batch_api/operation'
 
 module BatchApi
   class Processor
-    # Raised when a user provides more Batch API requests than a service
+    # Public: Raised when a user provides more Batch API requests than a service
     # allows.
     class OperationLimitExceeded < StandardError; end
-    # Raised if a provided option is invalid.
+    # Public: Raised if a provided option is invalid.
     class BadOptionError < StandardError; end
+    # Public: Raised if no operations are provided.
+    class NoOperationsError < ArgumentError; end
 
     attr_reader :ops, :options, :app
 
@@ -58,7 +60,7 @@ module BatchApi
     def process_ops
       ops = @request.params.delete("ops")
       if !ops || ops.empty?
-        raise ArgumentError, "No operations provided"
+        raise NoOperationsError, "No operations provided"
       elsif ops.length > BatchApi.config.limit
         raise OperationLimitExceeded,
           "Only #{BatchApi.config.limit} operations can be submitted at once, " +
