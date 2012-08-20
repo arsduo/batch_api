@@ -31,11 +31,11 @@ module BatchApi
     # Execute a batch request, returning a BatchResponse object.  If an error
     # occurs, it returns the same results as Rails would.
     def execute
+      process_env
       begin
-        process_env
         response = @app.call(@env)
       rescue => err
-        response = BatchApi::Error.new(err).render
+        response = BatchApi::Errors::Operation.new(err).render
       end
       BatchApi::Response.new(response)
     end
