@@ -27,7 +27,7 @@ module BatchApi
     #
     # Returns: an Array with the error body represented as JSON.
     def render
-      [MultiJson.dump(body)]
+      [500, {"Content-Type" => "application/json"}, [MultiJson.dump(body)]]
     end
 
     # Internal: whether the backtrace should be exposed in the response.

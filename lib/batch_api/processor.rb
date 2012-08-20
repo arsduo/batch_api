@@ -22,9 +22,10 @@ module BatchApi
     # Raises ArgumentError if no operations are provided (nil or []).
     #
     # Returns the new Processor instance.
-    def initialize(env, app)
+    def initialize(request, app)
       @app = app
-      @env = env
+      @request = request
+      @env = request.env
       @ops = self.process_ops
       @options = self.process_options
     end
@@ -55,7 +56,7 @@ module BatchApi
     #
     # Returns an array of BatchApi::Operation objects
     def process_ops
-      ops = params.delete("ops")
+      ops = @request.params.delete("ops")
       if !ops || ops.empty?
         raise ArgumentError, "No operations provided"
       elsif ops.length > BatchApi.config.limit
@@ -77,14 +78,10 @@ module BatchApi
     #
     # Returns the valid options hash.
     def process_options
-      raise BadOptionError, "Sequential flag is currently required" unless params["sequential"]
-      params
-    end
-
-    # Internal: a convenience method to the parameters hash provided by
-    # Rack.
-    def params
-      @env["action_dispatch.request.request_parameters"]
+      unless @request.params["sequential"]
+        raise BadOptionError, "Sequential flag is currently required"
+      end
+      @request.params
     end
   end
 end
