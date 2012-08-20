@@ -94,10 +94,10 @@ describe BatchApi::Processor do
         processor.execute!
       end
 
-      it "returns the result of the strategy" do
+      it "returns the formatted result of the strategy" do
         stubby = stub
         processor.strategy.stub(:execute!).and_return(stubby)
-        processor.execute!.should == stubby
+        processor.execute!.should == {"results" => stubby}
       end
     end
   end

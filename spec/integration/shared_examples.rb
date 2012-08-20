@@ -89,19 +89,19 @@ shared_examples_for "integrating with a server" do
   context "for a get request" do
     describe "the response" do
       before :each do
-        @result = JSON.parse(response.body)[0]
+        @result = JSON.parse(response.body)["results"][0]
       end
 
       it "returns the body raw if decode_json_responses = false" do
         BatchApi.config.stub(:decode_json_responses).and_return(false)
         xhr :post, "/batch", {ops: [get_request], sequential: true}.to_json,
         "CONTENT_TYPE" => "application/json"
-        @result = JSON.parse(response.body)[0]
+        @result = JSON.parse(response.body)["results"][0]
         @result["body"].should == get_result[:body].to_json
       end
 
       it "returns the body as objects if decode_json_responses = true" do
-        @result = JSON.parse(response.body)[0]
+        @result = JSON.parse(response.body)["results"][0]
         @result["body"].should == get_result[:body]
       end
 
@@ -124,14 +124,14 @@ shared_examples_for "integrating with a server" do
   context "for a post request" do
     describe "the response" do
       before :each do
-        @result = JSON.parse(response.body)[1]
+        @result = JSON.parse(response.body)["results"][1]
       end
 
       it "returns the body raw if decode_json_responses = false" do
         # BatchApi.config.decode_bodies = false
         xhr :post, "/batch", {ops: [post_request], sequential: true}.to_json,
           "CONTENT_TYPE" => "application/json"
-        @result = JSON.parse(response.body)[0]
+        @result = JSON.parse(response.body)["results"][0]
         @result["body"].should == JSON.parse(post_result[:body].to_json)
       end
 
@@ -155,7 +155,7 @@ shared_examples_for "integrating with a server" do
 
   context "for a request that returns an error" do
     before :each do
-      @result = JSON.parse(response.body)[2]
+      @result = JSON.parse(response.body)["results"][2]
     end
 
     it "returns the right status" do
@@ -169,7 +169,7 @@ shared_examples_for "integrating with a server" do
 
   context "for a request that returns error" do
     before :each do
-      @result = JSON.parse(response.body)[3]
+      @result = JSON.parse(response.body)["results"][3]
     end
 
     it "returns the right status" do

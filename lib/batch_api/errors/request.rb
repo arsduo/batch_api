@@ -7,14 +7,14 @@ module BatchApi
     # identifiable problems.  (For actual code errors, it returns a 500
     # response.)
     class Request < BatchApi::Errors::Base
-
       # Public: return the appropriate status code for the error.  For
       # errors from bad Batch API input, raise a 422, otherwise, a 500.
       def status_code
         case @error
         when BatchApi::Processor::BadOptionError,
              BatchApi::Processor::OperationLimitExceeded,
-             BatchApi::Processor::NoOperationsError
+             BatchApi::Processor::NoOperationsError,
+             BatchApi::Operation::MalformedOperationError
           422
         else
           500

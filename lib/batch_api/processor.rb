@@ -43,10 +43,22 @@ module BatchApi
     #
     # Returns a set of BatchResponses
     def execute!
-      strategy.execute!(@ops, @options)
+      format_response(strategy.execute!(@ops, @options))
     end
 
     protected
+
+    # Internal: format the result of the operations, and include
+    # any other appropriate information (such as timestamp).
+    #
+    # result - the array of batch operations
+    #
+    # Returns a hash ready to go to the user
+    def format_response(operation_results)
+      {
+        "results" => operation_results
+      }
+    end
 
     # Internal: Validate that an allowable number of operations have been
     # provided, and turn them into BatchApi::Operation objects.
