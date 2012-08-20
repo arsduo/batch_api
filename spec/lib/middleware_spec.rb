@@ -59,17 +59,31 @@ describe BatchApi::Middleware do
         middleware.call(env)
       end
 
-      it "returns the JSON-encoded result as the body" do
-        output = middleware.call(env)
-        output[2].should == [MultiJson.dump(result)]
+      context "for a successful set of calls" do
+        it "returns the JSON-encoded result as the body" do
+          output = middleware.call(env)
+          output[2].should == [MultiJson.dump(result)]
+        end
+
+        it "returns a 200" do
+          middleware.call(env)[0].should == 200
+        end
+
+        it "sets the content type" do
+          middleware.call(env)[1].should include("Content-Type" => "application/json")
+        end
       end
 
-      it "returns a 200" do
-        middleware.call(env)[0].should == 200
-      end
-
-      it "sets the content type" do
-        middleware.call(env)[1].should include("Content-Type" => "application/json")
+      context "for BatchApi errors" do
+        it "returns a rendered Errors::Request" do
+          err, result = StandardError.new, stub
+          error = stub("error object", render: result)
+          BatchApi::Processor.stub(:new).and_raise(err)
+          BatchApi::Errors::Request.should_receive(:new).with(err).and_return(
+            error
+          )
+          middleware.call(env).should == result
+        end
       end
     end
 

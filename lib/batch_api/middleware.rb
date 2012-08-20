@@ -2,18 +2,25 @@ module BatchApi
   class Middleware
     def initialize(app, &block)
       @app = app
-
       yield BatchApi.config if block
     end
 
     def call(env)
       if batch_request?(env)
-        request = request_klass.new(env)
-        result = BatchApi::Processor.new(request, @app).execute!
-        [200, {"Content-Type" => "application/json"}, [MultiJson.dump(result)]]
+        begin
+          request = request_klass.new(env)
+          result = BatchApi::Processor.new(request, @app).execute!
+          [200, self.class.content_type, [MultiJson.dump(result)]]
+        rescue => err
+          BatchApi::Errors::Request.new(err).render
+        end
       else
         @app.call(env)
       end
+    end
+
+    def self.content_type
+      {"Content-Type" => "application/json"}
     end
 
     private

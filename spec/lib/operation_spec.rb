@@ -192,7 +192,7 @@ describe BatchApi::Operation do
         operation.execute.should == response
       end
 
-      it "returns a BatchApi::Response from a BatchError for errors" do
+      it "returns a BatchApi::Response from an Errors::Operation for errors" do
         err = StandardError.new
         result, rendered, response = stub, stub, stub
         b_err = stub("batch error", render: rendered)
@@ -200,7 +200,7 @@ describe BatchApi::Operation do
         # simulate the error
         app.stub(:call).and_raise(err)
         # we'll create the BatchError
-        BatchApi::Error.should_receive(:new).with(err).and_return(b_err)
+        BatchApi::Errors::Operation.should_receive(:new).with(err).and_return(b_err)
         # render that as the response
         BatchApi::Response.should_receive(:new).with(rendered).and_return(response)
         # and return the response overall
