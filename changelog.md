@@ -1,3 +1,10 @@
+v0.0.8
+* Return the results wrapped in a hash, rather than a raw array
+* Add process_start timestamp option
+
+v0.0.7
+* Return more specific error codes to alert clients to param errors
+
 v0.0.6
 * Refactor Rack middleware to be Sinatra-compatible
 
