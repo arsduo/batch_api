@@ -94,10 +94,17 @@ describe BatchApi::Processor do
         processor.execute!
       end
 
-      it "returns the result of the strategy" do
+      it "returns the formatted result of the strategy" do
         stubby = stub
         processor.strategy.stub(:execute!).and_return(stubby)
-        processor.execute!.should == stubby
+        processor.execute!["results"].should == stubby
+      end
+
+      it "adds the start time" do
+        t = Time.now - 1.hour
+        Timecop.freeze(t) do
+          processor.execute!["timestamp"].should == t.to_i.to_s
+        end
       end
     end
   end

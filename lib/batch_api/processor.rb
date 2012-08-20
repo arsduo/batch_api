@@ -30,6 +30,8 @@ module BatchApi
       @env = request.env
       @ops = self.process_ops
       @options = self.process_options
+
+      @start_time = Time.now.to_i
     end
 
     # Public: the processing strategy to use, based on the options
@@ -43,10 +45,23 @@ module BatchApi
     #
     # Returns a set of BatchResponses
     def execute!
-      strategy.execute!(@ops, @options)
+      format_response(strategy.execute!(@ops, @options))
     end
 
     protected
+
+    # Internal: format the result of the operations, and include
+    # any other appropriate information (such as timestamp).
+    #
+    # result - the array of batch operations
+    #
+    # Returns a hash ready to go to the user
+    def format_response(operation_results)
+      {
+        "results" => operation_results,
+        "timestamp" => @start_time.to_s
+      }
+    end
 
     # Internal: Validate that an allowable number of operations have been
     # provided, and turn them into BatchApi::Operation objects.

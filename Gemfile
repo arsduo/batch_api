@@ -13,6 +13,7 @@ group :development, :test do
   gem 'guard'
   gem 'guard-rspec'
   gem 'faker'
+  gem 'timecop'
 
   if RUBY_PLATFORM =~ /darwin/
     # OS X integration

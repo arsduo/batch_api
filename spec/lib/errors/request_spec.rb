@@ -11,7 +11,8 @@ describe BatchApi::Errors::Request do
     [
       BatchApi::Processor::BadOptionError,
       BatchApi::Processor::OperationLimitExceeded,
-      BatchApi::Processor::NoOperationsError
+      BatchApi::Processor::NoOperationsError,
+      BatchApi::Operation::MalformedOperationError
     ].each do |e|
       err = e
       it "returns a 422 for #{err}" do
