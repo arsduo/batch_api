@@ -1,14 +1,14 @@
 require 'spec_helper'
-require 'batch_api/error'
+require 'batch_api/errors/base'
 
-describe BatchApi::Error do
+describe BatchApi::Errors::Base do
   let(:exception) {
     StandardError.new(Faker::Lorem.words(3)).tap do |e|
       e.set_backtrace(Kernel.caller)
     end
   }
 
-  let(:error) { BatchApi::Error.new(exception) }
+  let(:error) { BatchApi::Errors::Base.new(exception) }
 
   describe "#body" do
     it "includes the message in the body" do
@@ -27,16 +27,26 @@ describe BatchApi::Error do
   end
 
   describe "#render" do
-    it "returns 500 status" do
-      error.render[0].should == 500
+    it "returns the appropriate status" do
+      status = stub
+      error.stub(:status_code).and_return(status)
+      error.render[0].should == status
     end
 
-    it "returns json content type" do
-      error.render[1].should == {"Content-Type" => "application/json"}
+    it "returns appropriate content type" do
+      ctype = stub
+      BatchApi::Middleware.stub(:content_type).and_return(ctype)
+      error.render[1].should == ctype
     end
 
     it "returns the JSONified body as the 2nd" do
       error.render[2].should == [MultiJson.dump(error.body)]
+    end
+  end
+
+  describe "#status_code" do
+    it "returns 500" do
+      error.status_code.should == 500
     end
   end
 
