@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'batch_api/operation'
 
-describe BatchApi::Operation do
+describe BatchApi::Operation::Rack do
   let(:op_params) { {
     "method" => "POST",
     # this matches a route in our dummy application
@@ -11,7 +11,7 @@ describe BatchApi::Operation do
   } }
 
   # for env, see bottom of file - it's long
-  let(:operation) { BatchApi::Operation.new(op_params, env, app) }
+  let(:operation) { BatchApi::Operation::Rack.new(op_params, env, app) }
   let(:app) { stub("application", call: [200, {}, ["foo"]]) }
   let(:path_params) { {controller: "batch_api/batch", action: "batch"} }
 
@@ -35,12 +35,12 @@ describe BatchApi::Operation do
     end
 
     it "defaults params to {} if not provided" do
-      op = BatchApi::Operation.new(op_params.except("params"), env, app)
+      op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
       op.params.should == {}
     end
 
     it "defaults headers to {} if not provided" do
-      op = BatchApi::Operation.new(op_params.except("headers"), env, app)
+      op = BatchApi::Operation::Rack.new(op_params.except("headers"), env, app)
       op.headers.should == {}
     end
 
@@ -60,17 +60,17 @@ describe BatchApi::Operation do
     it "raises a MalformedOperationError if method or URL are missing" do
       no_method = op_params.dup.tap {|o| o.delete("method") }
       expect {
-        BatchApi::Operation.new(no_method, env, app)
+        BatchApi::Operation::Rack.new(no_method, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       no_url = op_params.dup.tap {|o| o.delete("url") }
       expect {
-        BatchApi::Operation.new(no_url, env, app)
+        BatchApi::Operation::Rack.new(no_url, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       nothing = op_params.dup.tap {|o| o.delete("url"); o.delete("method") }
       expect {
-        BatchApi::Operation.new(nothing, env, app)
+        BatchApi::Operation::Rack.new(nothing, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
     end
   end
