@@ -201,7 +201,7 @@ shared_examples_for "integrating with a server" do
     it "returns the right status" do
       # we don't care about the backtrace,
       # the main thing is that the messsage arrives
-      @result["body"]["error"].should include(error_response[:body][:error])
+      @result["body"]["error"].should include(error_response[:body]["error"])
     end
   end
 
