@@ -9,6 +9,7 @@ class EndpointsController < ApplicationController
   end
 
   def capture
+   request.env.each {|k, v| puts "#{k}: #{v}"}
    render json: {result: params[:captured]}
   end
 
