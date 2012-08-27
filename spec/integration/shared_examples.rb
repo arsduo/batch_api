@@ -30,21 +30,6 @@ shared_examples_for "integrating with a server" do
     headers: { "GET" => "hello" }
   } }
 
-  let(:parameter) {
-    (rand * 10000).to_i
-  }
-
-  let(:parameter_request) { {
-    url: "/endpoint/capture/#{parameter}",
-    method: "get"
-  } }
-
-  let(:parameter_result) { {
-    body: {
-      "result" => parameter
-    }
-  } }
-
   # these are defined in the dummy app's endpoints controller
   let(:post_headers) { {"foo" => "bar"} }
   let(:post_params) { {"other" => "value"} }
@@ -145,18 +130,6 @@ shared_examples_for "integrating with a server" do
     end
   end
 
-  context "for a request with parameters" do
-    describe "the response" do
-      before :each do
-        @result = JSON.parse(response.body)["results"][5]
-      end
-
-      it "properly parses the URL segment as a paramer" do
-        @result = JSON.parse(response.body)["results"][0]
-        @result["body"].should == parameter_result[:body]
-      end
-    end
-  end
   context "for a post request" do
     describe "the response" do
       before :each do
