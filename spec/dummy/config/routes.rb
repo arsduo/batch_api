@@ -3,6 +3,7 @@ Dummy::Application.routes.draw do
   post "/endpoint" => "endpoints#post"
   get "/endpoint" => "endpoints#get"
   get "/endpoint/error" => "endpoints#error"
+  get "/endpoint/capture/:captured" => "endpoints#capture"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
