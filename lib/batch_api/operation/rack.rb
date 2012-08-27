@@ -67,8 +67,6 @@ module BatchApi
 
         # parameters
         @env["rack.request.form_hash"] = @params
-        @env["action_dispatch.request.parameters"] = @params
-        @env["action_dispatch.request.request_parameters"] = @params
         @env["rack.request.query_hash"] = @method == "get" ? @params : nil
       end
     end
