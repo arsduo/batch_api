@@ -114,7 +114,6 @@ shared_examples_for "integrating with a server" do
   end
 
   it "returns a 200" do
-    puts response.body
     response.status.should == 200
   end
 
