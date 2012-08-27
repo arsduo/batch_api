@@ -199,7 +199,9 @@ shared_examples_for "integrating with a server" do
     end
 
     it "returns the right status" do
-      @result["body"].should == error_response[:body]
+      # we don't care about the backtrace,
+      # the main thing is that the messsage arrives
+      @result["body"]["error"].should include(error_response[:body][:error])
     end
   end
 
