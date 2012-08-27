@@ -50,12 +50,12 @@ describe BatchApi::Errors::Base do
     end
   end
 
-  describe "#expose_backtrace?" do
+  describe ".expose_backtrace?" do
     it "returns false if Rails.env.production?" do
       Rails.env.stub(:production?).and_return(true)
-      error.expose_backtrace?.should be_false
+      BatchApi::Errors::Base.expose_backtrace?.should be_false
       Rails.env.stub(:production?).and_return(false)
-      error.expose_backtrace?.should be_true
+      BatchApi::Errors::Base.expose_backtrace?.should be_true
     end
   end
 end

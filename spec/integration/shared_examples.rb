@@ -10,6 +10,10 @@ shared_examples_for "integrating with a server" do
     BatchApi.config.verb = :post
   end
 
+  before :each do
+    BatchApi::Errors::Base.stub(:expose_backtrace?).and_return(false)
+  end
+
   # these are defined in the dummy app's endpoints controller
   let(:get_headers) { {"foo" => "bar"} }
   let(:get_params) { {"other" => "value" } }
@@ -41,7 +45,7 @@ shared_examples_for "integrating with a server" do
 
   let(:parameter_result) { {
     body: {
-      "result" => parameter
+      "result" => parameter.to_s
     }
   } }
 
@@ -92,7 +96,8 @@ shared_examples_for "integrating with a server" do
         get_request,
         post_request,
         error_request,
-        missing_request
+        missing_request,
+        parameter_request
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
@@ -148,11 +153,10 @@ shared_examples_for "integrating with a server" do
   context "for a request with parameters" do
     describe "the response" do
       before :each do
-        @result = JSON.parse(response.body)["results"][5]
+        @result = JSON.parse(response.body)["results"][4]
       end
 
       it "properly parses the URL segment as a paramer" do
-        @result = JSON.parse(response.body)["results"][0]
         @result["body"].should == parameter_result[:body]
       end
     end
