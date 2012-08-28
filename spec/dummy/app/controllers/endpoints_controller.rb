@@ -8,6 +8,10 @@ class EndpointsController < ApplicationController
     render :json => {result: "GET OK", params: params.delete(:endpoint)}, status: 422
   end
 
+  def capture
+   render json: {result: params[:captured]}
+  end
+
   def post
     cookies["POST"] = "tschussikowski"
     response.headers["POST"] = "guten tag"

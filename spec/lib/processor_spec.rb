@@ -41,12 +41,15 @@ describe BatchApi::Processor do
 
   describe "#initialize" do
     # this may be brittle...consider refactoring?
-    it "turns the ops provided into BatchApi::Operations stored at #ops" do
+    it "turns the ops params into processed operations at #ops" do
       # simulate receiving several operations
+      klass = stub("op class")
+      BatchApi::Processor.stub(:operation_klass).and_return(klass)
       operation_objects = 3.times.collect { stub("operation object") }
       operation_params = 3.times.collect do |i|
         stub("raw operation").tap do |o|
-          BatchApi::Operation.should_receive(:new).with(o, env, app).and_return(operation_objects[i])
+          klass.should_receive(:new)
+            .with(o, env, app).and_return(operation_objects[i])
         end
       end
 
@@ -106,6 +109,20 @@ describe BatchApi::Processor do
           processor.execute!["timestamp"].should == t.to_i.to_s
         end
       end
+    end
+  end
+
+  describe ".operation_klass" do
+    it "returns BatchApi::Operation::Rack if !Rails" do
+      BatchApi.stub(:rails?).and_return(false)
+      BatchApi::Processor.operation_klass.should ==
+        BatchApi::Operation::Rack
+    end
+
+    it "returns BatchApi::Operation::Rails if Rails" do
+      BatchApi.stub(:rails?).and_return(true)
+      BatchApi::Processor.operation_klass.should ==
+        BatchApi::Operation::Rails
     end
   end
 end

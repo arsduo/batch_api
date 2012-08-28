@@ -10,6 +10,10 @@ shared_examples_for "integrating with a server" do
     BatchApi.config.verb = :post
   end
 
+  before :each do
+    BatchApi::Errors::Base.stub(:expose_backtrace?).and_return(false)
+  end
+
   # these are defined in the dummy app's endpoints controller
   let(:get_headers) { {"foo" => "bar"} }
   let(:get_params) { {"other" => "value" } }
@@ -25,9 +29,29 @@ shared_examples_for "integrating with a server" do
     status: 422,
     body: {
       "result" => "GET OK",
-      "params" => get_params
+      "params" => get_params.merge(
+        BatchApi.rails? ? {
+          "controller" => "endpoints",
+          "action" => "get"
+        } : {}
+      )
     },
     headers: { "GET" => "hello" }
+  } }
+
+  let(:parameter) {
+    (rand * 10000).to_i
+  }
+
+  let(:parameter_request) { {
+    url: "/endpoint/capture/#{parameter}",
+    method: "get"
+  } }
+
+  let(:parameter_result) { {
+    body: {
+      "result" => parameter.to_s
+    }
   } }
 
   # these are defined in the dummy app's endpoints controller
@@ -45,7 +69,12 @@ shared_examples_for "integrating with a server" do
     status: 203,
     body: {
       "result" => "POST OK",
-      "params" => post_params
+      "params" => post_params.merge(
+        BatchApi.rails? ? {
+          "controller" => "endpoints",
+          "action" => "post"
+        } : {}
+      )
     },
     headers: { "POST" => "guten tag" }
   } }
@@ -77,7 +106,8 @@ shared_examples_for "integrating with a server" do
         get_request,
         post_request,
         error_request,
-        missing_request
+        missing_request,
+        parameter_request
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
@@ -126,6 +156,18 @@ shared_examples_for "integrating with a server" do
         @result["headers"]["REQUEST_HEADERS"].should include(
           headerize(get_headers)
         )
+      end
+    end
+  end
+
+  context "for a request with parameters" do
+    describe "the response" do
+      before :each do
+        @result = JSON.parse(response.body)["results"][4]
+      end
+
+      it "properly parses the URL segment as a paramer" do
+        @result["body"].should == parameter_result[:body]
       end
     end
   end
