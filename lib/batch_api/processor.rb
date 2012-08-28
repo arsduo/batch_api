@@ -82,9 +82,16 @@ module BatchApi
           "#{ops.length} were provided"
       else
         ops.map do |op|
-          BatchApi::Operation.new(op, @env, @app)
+          self.class.operation_klass.new(op, @env, @app)
         end
       end
+    end
+
+    # Internal: which operation class to used.
+    #
+    # Returns Batch::Operation::(Rack|Rails) depending on the environment
+    def self.operation_klass
+      BatchApi.rails? ? Operation::Rails : Operation::Rack
     end
 
     # Internal: Processes any other provided options for validity.

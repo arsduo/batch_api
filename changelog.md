@@ -1,3 +1,7 @@
+v0.0.9
+* Add direct support for Rails for path params
+* Fix spec bugs
+
 v0.0.8
 * Return the results wrapped in a hash, rather than a raw array
 * Add process_start timestamp option

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'batch_api/operation'
 
-describe BatchApi::Operation do
+describe BatchApi::Operation::Rack do
   let(:op_params) { {
     "method" => "POST",
     # this matches a route in our dummy application
@@ -11,9 +11,8 @@ describe BatchApi::Operation do
   } }
 
   # for env, see bottom of file - it's long
-  let(:operation) { BatchApi::Operation.new(op_params, env, app) }
+  let(:operation) { BatchApi::Operation::Rack.new(op_params, env, app) }
   let(:app) { stub("application", call: [200, {}, ["foo"]]) }
-  let(:path_params) { {controller: "batch_api/batch", action: "batch"} }
 
   describe "accessors" do
     ["method", "url", "params", "headers", :env, :app, :result].each do |a|
@@ -35,12 +34,12 @@ describe BatchApi::Operation do
     end
 
     it "defaults params to {} if not provided" do
-      op = BatchApi::Operation.new(op_params.except("params"), env, app)
+      op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
       op.params.should == {}
     end
 
     it "defaults headers to {} if not provided" do
-      op = BatchApi::Operation.new(op_params.except("headers"), env, app)
+      op = BatchApi::Operation::Rack.new(op_params.except("headers"), env, app)
       op.headers.should == {}
     end
 
@@ -60,17 +59,17 @@ describe BatchApi::Operation do
     it "raises a MalformedOperationError if method or URL are missing" do
       no_method = op_params.dup.tap {|o| o.delete("method") }
       expect {
-        BatchApi::Operation.new(no_method, env, app)
+        BatchApi::Operation::Rack.new(no_method, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       no_url = op_params.dup.tap {|o| o.delete("url") }
       expect {
-        BatchApi::Operation.new(no_url, env, app)
+        BatchApi::Operation::Rack.new(no_url, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
 
       nothing = op_params.dup.tap {|o| o.delete("url"); o.delete("method") }
       expect {
-        BatchApi::Operation.new(nothing, env, app)
+        BatchApi::Operation::Rack.new(nothing, env, app)
       }.to raise_exception(BatchApi::Operation::MalformedOperationError)
     end
   end
@@ -134,18 +133,6 @@ describe BatchApi::Operation do
 
     it "updates the form hash" do
       key = "rack.request.form_hash"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["params"]
-    end
-
-    it "updates the ActionDispatch params" do
-      key = "action_dispatch.request.parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["params"]
-    end
-
-    it "updates the ActionDispatch request params" do
-      key = "action_dispatch.request.request_parameters"
       processed_env[key].should_not == env[key]
       processed_env[key].should == op_params["params"]
     end
@@ -239,29 +226,11 @@ describe BatchApi::Operation do
       "HTTP_VERSION"=>"HTTP/1.1",
       "REQUEST_PATH"=>"/batch",
       "ORIGINAL_FULLPATH"=>"/batch",
-      "action_dispatch.routes"=>Rails.application.routes,
-      "action_dispatch.parameter_filter"=>[:password],
-      "action_dispatch.secret_token"=>"fc6fbc81b3204410da8389",
-      "action_dispatch.show_exceptions"=>true,
-      "action_dispatch.show_detailed_exceptions"=>true,
-      "action_dispatch.logger"=>Rails.logger,
-      "action_dispatch.backtrace_cleaner"=>nil,
-      "action_dispatch.request_id"=>"2e7c988bea73e13dca4fac059a1bb187",
-      "action_dispatch.remote_ip"=>"127.0.0.1",
-      "action_dispatch.request.content_type"=>"application/x-www-form-urlencoded",
-      "action_dispatch.request.path_parameters"=> {},
-      # pick something that's not right
-      "action_controller.instance"=>ApplicationController.new,
       "rack.request.form_input"=>StringIO.new("{\"ops\":{}}"),
       "rack.request.form_hash"=>{"{\"ops\":{}}"=>nil},
       "rack.request.form_vars"=>"{\"ops\":{}}",
-      "action_dispatch.request.request_parameters"=>{"{\"ops\":{}}"=>nil},
       "rack.request.query_string"=>"",
-      "rack.request.query_hash"=>{},
-      "action_dispatch.request.query_parameters"=>{},
-      "action_dispatch.request.parameters"=>{"{\"ops\":{}}"=>nil},
-      "action_dispatch.request.accepts"=>"[*/*]",
-      "action_dispatch.request.formats"=>"[*/*]"
+      "rack.request.query_hash"=>{}
     }
   }
 end
