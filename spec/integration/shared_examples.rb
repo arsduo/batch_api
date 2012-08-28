@@ -171,6 +171,7 @@ shared_examples_for "integrating with a server" do
       end
     end
   end
+
   context "for a post request" do
     describe "the response" do
       before :each do
