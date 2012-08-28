@@ -17,7 +17,7 @@ module BatchApi
   # can stub it in the tests.
   #
   # Returns true if Rails is a defined constant, false otherwise.
-  def rails?
+  def self.rails?
     defined?(Rails)
   end
 end

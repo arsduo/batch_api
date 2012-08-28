@@ -1,4 +1,7 @@
-v0.0.9
+v0.1.1
+* Fix dumb error
+
+v0.1.0
 * Add direct support for Rails for path params
 * Fix spec bugs
 
