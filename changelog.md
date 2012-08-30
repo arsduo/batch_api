@@ -1,3 +1,7 @@
+v0.1.2
+* Rewrite the readme
+* Add travis icon
+
 v0.1.1
 * Fix dumb error
 
