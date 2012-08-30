@@ -12,7 +12,7 @@ This is heavily inspired by [Facebook's Batch API](http://developers.facebook.co
 
 Making a batch request:
 
-```json
+```
 # POST /batch
 # Content-Type: application/json
 
@@ -29,7 +29,7 @@ Making a batch request:
 
 Reading the response:
 
-```json
+```
 {
   results: [
     {status: 200, body: [{id: 1, name: "Jim-Bob"}, ...], headers: {}},
