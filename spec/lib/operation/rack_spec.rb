@@ -154,6 +154,27 @@ describe BatchApi::Operation::Rack do
     end
   end
 
+  describe '#process_params' do
+    context 'by default' do
+      it 'keeps the params intact' do
+        expect {
+          operation.process_params
+        }.to_not change(operation, :params)
+      end
+    end
+
+    context 'when given custom processing logic' do
+      it 'preprocesses the params with that logic' do
+        processor = ->(params) { { new: 'params' } }
+        BatchApi.config.stub(:params_processor).and_return processor
+
+        expect {
+          operation.process_params
+        }.to change(operation, :params).to({new: 'params'})
+      end
+    end
+  end
+
   describe "#execute" do
     context "when it works" do
       let(:result) { [
@@ -169,6 +190,11 @@ describe BatchApi::Operation::Rack do
 
       it "executes the call with the application" do
         app.should_receive(:call).with(processed_env)
+        operation.execute
+      end
+
+      it "preprocesses the params" do
+        operation.should_receive(:process_params)
         operation.execute
       end
 
