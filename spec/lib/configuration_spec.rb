@@ -9,7 +9,7 @@ describe BatchApi::Configuration do
       endpoint: "/batch",
       limit: 50,
       decode_json_responses: true,
-      add_timestamp: true
+      add_timestamp: true,
     }.each_pair do |option, default|
       opt, defa = option, default
       describe "##{opt}" do
@@ -23,6 +23,10 @@ describe BatchApi::Configuration do
           config.send(opt).should == defa
         end
       end
+    end
+
+    it 'default params_processor to a self returning block' do
+      config.params_processor.call(3).should eq(3)
     end
   end
 end

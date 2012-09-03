@@ -14,6 +14,7 @@ module BatchApi
     attr_accessor :verb, :endpoint, :limit
     attr_accessor :decode_json_responses
     attr_accessor :add_timestamp
+    attr_accessor :params_processor
 
     # Default values for configuration variables
     def initialize
@@ -22,8 +23,8 @@ module BatchApi
       @limit = 50
       @decode_json_responses = true
       @add_timestamp = true
+      @params_processor = ->(params) { params }
     end
   end
 end
-
 
