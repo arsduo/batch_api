@@ -19,7 +19,7 @@ Making a batch request:
 {
   ops: [
     {method: "get",    url: "/patrons"},
-    {method: "post",   url: "/orders/new", params: {dish_id: 123}},
+    {method: "post",   url: "/orders/new",  params: {dish_id: 123}},
     {method: "get",    url: "/oh/no/error", headers: {break: "fast"}},
     {method: "delete", url: "/patrons/456"}
   ],
