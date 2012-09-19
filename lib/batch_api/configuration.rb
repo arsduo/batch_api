@@ -13,7 +13,6 @@ module BatchApi
     # response, the bodies are already objects).
     attr_accessor :verb, :endpoint, :limit
     attr_accessor :decode_json_responses
-    attr_accessor :add_timestamp
 
     # Default values for configuration variables
     def initialize
@@ -21,7 +20,6 @@ module BatchApi
       @endpoint = "/batch"
       @limit = 50
       @decode_json_responses = true
-      @add_timestamp = true
     end
   end
 end

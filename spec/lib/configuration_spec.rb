@@ -8,8 +8,7 @@ describe BatchApi::Configuration do
       verb: :post,
       endpoint: "/batch",
       limit: 50,
-      decode_json_responses: true,
-      add_timestamp: true
+      decode_json_responses: true
     }.each_pair do |option, default|
       opt, defa = option, default
       describe "##{opt}" do
