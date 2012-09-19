@@ -35,7 +35,7 @@ describe BatchApi::Errors::Base do
 
     it "returns appropriate content type" do
       ctype = stub
-      BatchApi::Middleware.stub(:content_type).and_return(ctype)
+      BatchApi::RackMiddleware.stub(:content_type).and_return(ctype)
       error.render[1].should == ctype
     end
 

@@ -2,7 +2,7 @@ require 'batch_api/configuration'
 require 'batch_api/version'
 require 'batch_api/utils'
 require 'batch_api/processor'
-require 'batch_api/middleware'
+require 'batch_api/rack_middleware'
 
 module BatchApi
 
