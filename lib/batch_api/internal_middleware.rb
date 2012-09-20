@@ -44,12 +44,12 @@ module BatchApi
     end
 
     # Public: the middleware stack to use for requests.
-    def self.stack
+    def self.stack(processor)
       Middleware::Builder.new do
         # evaluate these in the context of the middleware object
         self.instance_eval &BatchApi.config.batch_middleware
         # for now, everything's sequential, but that will change
-        use Processor::Sequential
+        use processor.strategy
         self.instance_eval &BatchApi.config.operation_middleware
         # and end with actually executing the batch request
         use Processor::Executor

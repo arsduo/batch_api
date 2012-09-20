@@ -37,7 +37,9 @@ describe BatchApi::InternalMiddleware do
     # we can't use stubs inside the procs since they're instance_eval'd
     let(:global_config) { Proc.new { use "Global" } }
     let(:op_config) { Proc.new { use "Op" } }
-    let(:stack) { BatchApi::InternalMiddleware.stack }
+    let(:strategy) { stub("strategy") }
+    let(:processor) { stub("processor", strategy: strategy) }
+    let(:stack) { BatchApi::InternalMiddleware.stack(processor) }
 
     class Middleware; class Builder; end; end
 
@@ -55,8 +57,8 @@ describe BatchApi::InternalMiddleware do
       stack.middlewares[0].first.should == "Global"
     end
 
-    it "inserts the sequential processor" do
-      stack.middlewares[1].first.should == BatchApi::Processor::Sequential
+    it "inserts the appropriate strategy from the processor" do
+      stack.middlewares[1].first.should == strategy
     end
 
     it "builds a middleware stack including the configured per-op wares" do
