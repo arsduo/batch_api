@@ -41,8 +41,6 @@ describe BatchApi::InternalMiddleware do
     let(:processor) { stub("processor", strategy: strategy) }
     let(:stack) { BatchApi::InternalMiddleware.stack(processor) }
 
-    class Middleware; class Builder; end; end
-
     before :each do
       BatchApi.config.stub(:batch_middleware).and_return(global_config)
       BatchApi.config.stub(:operation_middleware).and_return(op_config)
