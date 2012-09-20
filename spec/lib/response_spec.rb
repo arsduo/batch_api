@@ -24,14 +24,4 @@ describe BatchApi::Response do
   it "sets headers to the HTTP headers" do
     response.headers.should == raw_response[1]
   end
-
-  describe "#to_rack" do
-    it "returns a Rack-compatible array" do
-      response.to_rack.should == [
-        response.status,
-        response.headers,
-        response.body
-      ]
-    end
-  end
 end

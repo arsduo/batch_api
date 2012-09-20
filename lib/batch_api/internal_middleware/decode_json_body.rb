@@ -10,14 +10,14 @@ module BatchApi
 
       def call(env)
         @app.call(env).tap do |result|
-          result[2] = MultiJson.load(result[2]) if should_decode?(result)
+          result.body = MultiJson.load(result.body) if should_decode?(result)
         end
       end
 
       private
 
       def should_decode?(result)
-        result[1]["Content-Type"] =~ /^application\/json/
+        result.headers["Content-Type"] =~ /^application\/json/
       end
     end
   end
