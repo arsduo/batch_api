@@ -43,17 +43,6 @@ shared_examples_for "integrating with a server" do
     (rand * 10000).to_i
   }
 
-  let(:parameter_request) { {
-    url: "/endpoint/capture/#{parameter}",
-    method: "get"
-  } }
-
-  let(:parameter_result) { {
-    body: {
-      "result" => parameter.to_s
-    }
-  } }
-
   # these are defined in the dummy app's endpoints controller
   let(:post_headers) { {"foo" => "bar"} }
   let(:post_params) { {"other" => "value"} }
@@ -141,6 +130,7 @@ shared_examples_for "integrating with a server" do
       end
 
       it "verifies that the right headers were received" do
+        puts @result.inspect
         @result["headers"]["REQUEST_HEADERS"].should include(
           headerize(get_headers)
         )
