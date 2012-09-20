@@ -15,6 +15,11 @@ module BatchApi
       @body = process_body(response[2])
     end
 
+
+    def to_rack
+      [status, headers, body]
+    end
+
     private
 
     def process_body(body_pieces)

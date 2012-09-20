@@ -11,7 +11,7 @@ module BatchApi
 
       # Public: execute the batch operation.
       def call(env)
-        env[:op].execute
+        env[:op].execute.to_rack
       end
     end
   end
