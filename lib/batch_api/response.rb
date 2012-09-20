@@ -24,12 +24,7 @@ module BatchApi
       # so turn it into a string
       base_body = ""
       body_pieces.each {|str| base_body << str}
-      should_decode? ? MultiJson.load(base_body) : base_body
-    end
-
-    def should_decode?
-      @headers["Content-Type"] =~ /^application\/json/ &&
-        BatchApi.config.decode_json_responses
+      base_body
     end
   end
 end
