@@ -1,14 +1,14 @@
 require 'spec_helper'
-require 'batch_api/errors/base'
+require 'batch_api/error_wrapper'
 
-describe BatchApi::Errors::Base do
+describe BatchApi::ErrorWrapper do
   let(:exception) {
     StandardError.new(Faker::Lorem.words(3)).tap do |e|
       e.set_backtrace(Kernel.caller)
     end
   }
 
-  let(:error) { BatchApi::Errors::Base.new(exception) }
+  let(:error) { BatchApi::ErrorWrapper.new(exception) }
 
   describe "#body" do
     it "includes the message in the body" do
@@ -53,9 +53,9 @@ describe BatchApi::Errors::Base do
   describe ".expose_backtrace?" do
     it "returns false if Rails.env.production?" do
       Rails.env.stub(:production?).and_return(true)
-      BatchApi::Errors::Base.expose_backtrace?.should be_false
+      BatchApi::ErrorWrapper.expose_backtrace?.should be_false
       Rails.env.stub(:production?).and_return(false)
-      BatchApi::Errors::Base.expose_backtrace?.should be_true
+      BatchApi::ErrorWrapper.expose_backtrace?.should be_true
     end
   end
 end
