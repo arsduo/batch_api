@@ -3,14 +3,6 @@ require 'batch_api/operation'
 
 module BatchApi
   class Processor
-    # Public: Raised when a user provides more Batch API requests than a service
-    # allows.
-    class OperationLimitExceeded < StandardError; end
-    # Public: Raised if a provided option is invalid.
-    class BadOptionError < StandardError; end
-    # Public: Raised if no operations are provided.
-    class NoOperationsError < ArgumentError; end
-
     attr_reader :ops, :options, :app
 
     # Public: create a new Processor.
@@ -20,7 +12,7 @@ module BatchApi
     #
     # Raises OperationLimitExceeded if more operations are requested than
     # allowed by the BatchApi configuration.
-    # Raises BadOptionError if other provided options are invalid.
+    # Raises Errors::BadOptionError if other provided options are invalid.
     # Raises ArgumentError if no operations are provided (nil or []).
     #
     # Returns the new Processor instance.
@@ -68,16 +60,17 @@ module BatchApi
     #
     # ops - a series of operations
     #
-    # Raises OperationLimitExceeded if more operations are requested than
+    # Raises Errors::OperationLimitExceeded if more operations are requested than
     # allowed by the BatchApi configuration.
+    # Raises Errors::NoOperationsError if no operations are provided.
     #
     # Returns an array of BatchApi::Operation objects
     def process_ops
       ops = @request.params.delete("ops")
       if !ops || ops.empty?
-        raise NoOperationsError, "No operations provided"
+        raise Errors::NoOperationsError, "No operations provided"
       elsif ops.length > BatchApi.config.limit
-        raise OperationLimitExceeded,
+        raise Errors::OperationLimitExceeded,
           "Only #{BatchApi.config.limit} operations can be submitted at once, " +
           "#{ops.length} were provided"
       else
@@ -100,10 +93,12 @@ module BatchApi
     #
     # options - an options hash
     #
+    # Raises Errors::BadOptionError if sequential is not provided.
+    #
     # Returns the valid options hash.
     def process_options
       unless @request.params["sequential"]
-        raise BadOptionError, "Sequential flag is currently required"
+        raise Errors::BadOptionError, "Sequential flag is currently required"
       end
       @request.params
     end
