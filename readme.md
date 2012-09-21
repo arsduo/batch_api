@@ -87,13 +87,41 @@ same status code and body they would return as individual requests.
 If the Batch API itself returns a non-200 status code, that indicates a global
 problem.
 
-## Why Batch?
+## Why a Batch API?
 
 Batch APIs, though unRESTful, are useful for reducing HTTP overhead
 by combining requests; this is particularly valuable for mobile clients,
 which may generate groups of offline actions and which desire to
 reduce battery consumption while connected by making fewer, better-compressed
 requests.
+
+### Why not HTTP Pipelining?
+
+HTTP pipelining is an awesome and promising technology, and would provide a
+simple and effortless way to parallel process many requests; however, using
+pipelining raised several issues for us, one of which was a blocker:
+
+* [Lack of browser
+support](http://en.wikipedia.org/wiki/HTTP_pipelining#Implementation_in_web_browsers):
+a number of key browsers do not yet support HTTP pipelining (or have it
+disabled by default).  This will of course change in time,
+but for now this takes pipelining out of consideration.  (There a similar but
+more minor issue
+with [many web
+proxies](http://en.wikipedia.org/wiki/HTTP_pipelining#Implementation_in_web_proxies).)
+* The HTTP pipelining specification states that non-idempotent requests (e.g.
+[POST](http://en.wikipedia.org/wiki/HTTP_pipelining) and
+[in some
+descriptions](http://www-archive.mozilla.org/projects/netlib/http/pipelining-faq.html) PUT)
+shouldn't be made via pipelining.  Though I have heard that some server
+implementations do support POST requests (putting all subsequent requests on
+hold until it's done), for applications that submit a lot of POSTs this raised
+concerns as well.
+
+Given this state of affairs -- and my desire to hack up a Batch API gem :P --,
+we decided to implement an API-based solution.
+
+### Why this Approach?
 
 There are two main approaches to writing batch APIs:
 
@@ -102,8 +130,6 @@ There are two main approaches to writing batch APIs:
   for Rails 3.2 [in a gist](https://gist.github.com/981520) last year.
 * A general-purpose RESTful API that can handle anything in your application,
   a la the Facebook Batch API.
-
-### Why this Approach?
 
 The second approach, IMO, minimizes code duplication and complexity. Rather
 than have two systems that manage resources (or a more complicated one that
@@ -156,6 +182,13 @@ If it is a batch request, we:
   Errors are caught and recorded appropriately.
 * Send you back the results.
 
+At both the batch level (processing all requests) and the individual operation
+request, there is an internal, customizable midleware stack that you can
+customize to insert additional custom behavior, such as handling authentication
+or decoding JSON bodies for individual requests (this latter comes
+pre-included).  Check out the lib/batch_api/internal_middleware.rb for more
+information.
+
 ## To Do
 
 The core of the Batch API is complete and solid, and so ready to go that it's
@@ -169,8 +202,6 @@ Here are some immediate tasks:
   surpress output for individual requests, etc.
 * Add RDoc to the spec task and ensure all methods are documented.
 * Research and implement parallelization and dependency management.
-* Implement a middleware stack to allow better customization of
-  request/response handling.
 
 ## Thanks
 
