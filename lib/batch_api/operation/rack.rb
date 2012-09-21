@@ -33,6 +33,7 @@ module BatchApi
       # occurs, it returns the same results as Rails would.
       def execute
         process_env
+        process_params
         begin
           response = @app.call(@env)
         rescue => err
@@ -68,6 +69,15 @@ module BatchApi
         # parameters
         @env["rack.request.form_hash"] = @params
         @env["rack.request.query_hash"] = @method == "get" ? @params : nil
+      end
+
+      # Internal: Processes the parameters according to custom logic provided
+      # by the configuration. By default, it returns them unmodified.
+      #
+      # Returns nothing.
+      def process_params
+        processor = BatchApi.config.params_processor
+        @params   = processor.call(@params.dup)
       end
     end
   end
