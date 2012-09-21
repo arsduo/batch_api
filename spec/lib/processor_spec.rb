@@ -84,36 +84,36 @@ describe BatchApi::Processor do
         expect { BatchApi::Processor.new(request, app) }.to raise_exception(ArgumentError)
       end
     end
+  end
 
-    describe "#strategy" do
-      it "returns BatchApi::Processor::Sequential" do
-        processor.strategy.should == BatchApi::Processor::Sequential
-      end
+  describe "#strategy" do
+    it "returns BatchApi::Processor::Sequential" do
+      processor.strategy.should == BatchApi::Processor::Sequential
+    end
+  end
+
+  describe "#execute!" do
+    let(:result) { stub("result") }
+    let(:stack) { stub("stack", call: result) }
+    let(:middleware_env) { {
+      ops: processor.ops, # the processed Operation objects
+      rack_env: env,
+      rack_app: app,
+      options: options
+    } }
+
+    before :each do
+      BatchApi::InternalMiddleware.stub(:batch_stack).and_return(stack)
     end
 
-    describe "#execute!" do
-      let(:result) { stub("result") }
-      let(:stack) { stub("stack", call: result) }
-      let(:middleware_env) { {
-        ops: processor.ops, # the processed Operation objects
-        rack_env: env,
-        rack_app: app,
-        options: options
-      } }
+    it "calls an internal middleware stacks with the appropriate data" do
+      stack.should_receive(:call).with(middleware_env)
+      processor.execute!
+    end
 
-      before :each do
-        BatchApi::InternalMiddleware.stub(:stack).and_return(stack)
-      end
-
-      it "calls an internal middleware stacks with the appropriate data" do
-        stack.should_receive(:call).with(middleware_env)
-        processor.execute!
-      end
-
-      it "returns the formatted result of the strategy" do
-        stack.stub(:call).and_return(stubby = stub)
-        processor.execute!["results"].should == stubby
-      end
+    it "returns the formatted result of the strategy" do
+      stack.stub(:call).and_return(stubby = stub)
+      processor.execute!["results"].should == stubby
     end
   end
 

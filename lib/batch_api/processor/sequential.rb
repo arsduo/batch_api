@@ -1,7 +1,6 @@
 module BatchApi
   class Processor
     class Sequential
-
       # Public: initialize with the app.
       def initialize(app)
         @app = app
@@ -17,9 +16,11 @@ module BatchApi
         env[:ops].collect do |op|
           # set the current op
           env[:op] = op
-          # execute the individual request
-          # then clear out the current op afterward
-          @app.call(env).tap {|r| env.delete(:op) }
+
+          # execute the individual request inside the operation-specific
+          # middeware, then clear out the current op afterward
+          middleware = InternalMiddleware.operation_stack
+          middleware.call(env).tap {|r| env.delete(:op) }
         end
       end
     end
