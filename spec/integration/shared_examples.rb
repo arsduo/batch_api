@@ -141,7 +141,6 @@ shared_examples_for "integrating with a server" do
       end
 
       it "verifies that the right headers were received" do
-        puts @result.inspect
         @result["headers"]["REQUEST_HEADERS"].should include(
           headerize(get_headers)
         )
