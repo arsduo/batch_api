@@ -1,3 +1,8 @@
+v0.2.0
+* Refactor app to use internal middlewares for handling operations
+* Refactor JSON decoding to a middleware
+* Remove timestamp option
+
 v0.1.2
 * Rewrite the readme
 * Add travis icon
