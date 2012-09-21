@@ -45,8 +45,15 @@ describe BatchApi::ErrorWrapper do
   end
 
   describe "#status_code" do
-    it "returns 500" do
+    it "returns 500 by default" do
       error.status_code.should == 500
+    end
+
+    it "returns another status code if the error supports that" do
+      err = StandardError.new
+      code = stub
+      err.stub(:status_code).and_return(code)
+      BatchApi::ErrorWrapper.new(err).status_code.should == code
     end
   end
 
