@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    batch_api (0.1.1)
+    batch_api (0.2.0)
       middleware
 
 GEM

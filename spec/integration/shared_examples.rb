@@ -39,10 +39,6 @@ shared_examples_for "integrating with a server" do
     headers: { "GET" => "hello" }
   } }
 
-  let(:parameter) {
-    (rand * 10000).to_i
-  }
-
   # these are defined in the dummy app's endpoints controller
   let(:post_headers) { {"foo" => "bar"} }
   let(:post_params) { {"other" => "value"} }
@@ -86,6 +82,21 @@ shared_examples_for "integrating with a server" do
   let(:missing_response) { {
     status: 404,
     body: {}
+  } }
+
+  let(:parameter) {
+    (rand * 10000).to_i
+  }
+
+  let(:parameter_request) { {
+    url: "/endpoint/capture/#{parameter}",
+    method: "get"
+  } }
+
+  let(:parameter_result) { {
+    body: {
+      "result" => parameter.to_s
+    }
   } }
 
   before :each do
