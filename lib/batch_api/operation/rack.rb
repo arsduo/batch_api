@@ -3,8 +3,6 @@ require 'batch_api/response'
 module BatchApi
   # Public: an individual batch operation.
   module Operation
-    class MalformedOperationError < ArgumentError; end
-
     class Rack
       attr_accessor :method, :url, :params, :headers
       attr_accessor :env, :app, :result
@@ -20,7 +18,7 @@ module BatchApi
         @params = op["params"] || {}
         @headers = op["headers"] || {}
 
-        raise MalformedOperationError,
+        raise Errors::MalformedOperationError,
           "BatchAPI operation must include method (received #{@method.inspect}) " +
           "and url (received #{@url.inspect})" unless @method && @url
 
@@ -36,7 +34,7 @@ module BatchApi
         begin
           response = @app.call(@env)
         rescue => err
-          response = BatchApi::Errors::Operation.new(err).render
+          response = BatchApi::ErrorWrapper.new(err).render
         end
         BatchApi::Response.new(response)
       end
