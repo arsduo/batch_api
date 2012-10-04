@@ -43,7 +43,7 @@ module BatchApi
     #
     # Returns a set of BatchResponses
     def execute!
-      stack = InternalMiddleware.stack(self)
+      stack = InternalMiddleware.batch_stack(self)
       format_response(stack.call(middleware_env))
     end
 
