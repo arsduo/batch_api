@@ -27,23 +27,27 @@ describe BatchApi::Response do
     end
   end
 
-  describe "#to_json" do
+  describe "#as_json" do
     it "creates the expected hash" do
-      response.to_json.should == {
+      response.as_json.should == {
         body: response.body,
         status: response.status,
         headers: response.headers
       }
     end
 
+    it "accepts options" do
+      response.as_json(foo: :bar).should_not be_nil
+    end
+
     it "leaves out items that are blank" do
       response.status = response.body = nil
-      response.to_json.should == {headers: raw_response[1]}
+      response.as_json.should == {headers: raw_response[1]}
     end
 
     it "includes items that are false" do
       response.body = false
-      response.to_json[:body].should == false
+      response.as_json[:body].should == false
     end
   end
 end
