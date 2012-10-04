@@ -3,6 +3,10 @@ v0.2.0
 * Refactor JSON decoding to a middleware
 * Remove timestamp option
 
+v0.1.3
+* Refactor config to use a struct
+* Update readme to cover HTTP pipelining
+
 v0.1.2
 * Rewrite the readme
 * Add travis icon
