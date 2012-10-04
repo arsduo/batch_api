@@ -15,7 +15,10 @@ describe BatchApi::Operation::Rack do
   let(:app) { stub("application", call: [200, {}, ["foo"]]) }
 
   describe "accessors" do
-    ["method", "url", "params", "headers", :env, :app, :result].each do |a|
+    [
+      :method, :url, :params, :headers,
+      :env, :app, :result, :options
+    ].each do |a|
       attr = a
       it "has an accessor for #{attr}" do
         value = stub
@@ -31,6 +34,10 @@ describe BatchApi::Operation::Rack do
       it "extracts the #{attr} information from the operation params" do
         operation.send(attr).should == op_params[attr]
       end
+    end
+
+    it "sets options to the op" do
+      operation.options.should == op_params
     end
 
     it "defaults params to {} if not provided" do

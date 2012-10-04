@@ -5,7 +5,7 @@ module BatchApi
   module Operation
     class Rack
       attr_accessor :method, :url, :params, :headers
-      attr_accessor :env, :app, :result
+      attr_accessor :env, :app, :result, :options
 
       # Public: create a new Batch Operation given the specifications for a batch
       # operation (as defined above) and the request environment for the main
@@ -17,6 +17,7 @@ module BatchApi
         @url = op["url"]
         @params = op["params"] || {}
         @headers = op["headers"] || {}
+        @options = op
 
         raise Errors::MalformedOperationError,
           "BatchAPI operation must include method (received #{@method.inspect}) " +
