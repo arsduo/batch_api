@@ -1,4 +1,4 @@
-require 'batch_api/processor/strategies/sequential'
+require 'batch_api/processor/sequential'
 require 'batch_api/operation'
 
 module BatchApi
@@ -30,25 +30,33 @@ module BatchApi
       @env = request.env
       @ops = self.process_ops
       @options = self.process_options
-
-      @start_time = Time.now.to_i
     end
 
     # Public: the processing strategy to use, based on the options
     # provided in BatchApi setup and the request.
     # Currently only Sequential is supported.
     def strategy
-      BatchApi::Processor::Strategies::Sequential
+      BatchApi::Processor::Sequential
     end
 
     # Public: run the batch operations according to the appropriate strategy.
     #
     # Returns a set of BatchResponses
     def execute!
-      format_response(strategy.execute!(@ops, @options))
+      stack = InternalMiddleware.stack(self)
+      format_response(stack.call(middleware_env))
     end
 
     protected
+
+    def middleware_env
+      {
+        ops: @ops,
+        rack_env: @env,
+        rack_app: @app,
+        options: @options
+      }
+    end
 
     # Internal: format the result of the operations, and include
     # any other appropriate information (such as timestamp).

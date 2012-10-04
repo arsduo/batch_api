@@ -86,20 +86,32 @@ describe BatchApi::Processor do
     end
 
     describe "#strategy" do
-      it "returns BatchApi::Processor::Strategies::Sequential" do
-        processor.strategy.should == BatchApi::Processor::Strategies::Sequential
+      it "returns BatchApi::Processor::Sequential" do
+        processor.strategy.should == BatchApi::Processor::Sequential
       end
     end
 
     describe "#execute!" do
-      it "executes on the provided strategy" do
-        processor.strategy.should_receive(:execute!).with(processor.ops, processor.options)
+      let(:result) { stub("result") }
+      let(:stack) { stub("stack", call: result) }
+      let(:middleware_env) { {
+        ops: processor.ops, # the processed Operation objects
+        rack_env: env,
+        rack_app: app,
+        options: options
+      } }
+
+      before :each do
+        BatchApi::InternalMiddleware.stub(:stack).and_return(stack)
+      end
+
+      it "calls an internal middleware stacks with the appropriate data" do
+        stack.should_receive(:call).with(middleware_env)
         processor.execute!
       end
 
       it "returns the formatted result of the strategy" do
-        stubby = stub
-        processor.strategy.stub(:execute!).and_return(stubby)
+        stack.stub(:call).and_return(stubby = stub)
         processor.execute!["results"].should == stubby
       end
     end

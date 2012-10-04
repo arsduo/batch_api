@@ -3,7 +3,7 @@ require 'rack/contrib'
 
 class SinatraApp < Sinatra::Base
   use Rack::PostBodyContentTypeParser
-  use BatchApi::Middleware
+  use BatchApi::RackMiddleware
 
   get "/endpoint" do
     headers["GET"] = "hello"
