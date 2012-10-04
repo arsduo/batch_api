@@ -50,8 +50,7 @@ module BatchApi
     # Returns a hash ready to go to the user
     def format_response(operation_results)
       {
-        "results" => operation_results,
-        "timestamp" => @start_time.to_s
+        "results" => operation_results
       }
     end
 
