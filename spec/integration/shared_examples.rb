@@ -99,6 +99,20 @@ shared_examples_for "integrating with a server" do
     }
   } }
 
+  let(:silent_request) { {
+    url: "/endpoint",
+    method: "post",
+    silent: true
+  } }
+
+  let(:failed_silent_request) {
+    error_request.merge(silent: true)
+  }
+
+  let(:failed_silent_result) {
+    error_response
+  }
+
   before :each do
     @t = Time.now
     xhr :post, "/batch", {
@@ -107,7 +121,9 @@ shared_examples_for "integrating with a server" do
         post_request,
         error_request,
         missing_request,
-        parameter_request
+        parameter_request,
+        silent_request,
+        failed_silent_request
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
@@ -201,7 +217,7 @@ shared_examples_for "integrating with a server" do
       @result["status"].should == error_response[:status]
     end
 
-    it "returns the right status" do
+    it "returns the right error information" do
       # we don't care about the backtrace,
       # the main thing is that the messsage arrives
       @result["body"]["error"].should include(error_response[:body]["error"])
@@ -215,6 +231,26 @@ shared_examples_for "integrating with a server" do
 
     it "returns the right status" do
       @result["status"].should == 404
+    end
+  end
+
+  context "for a silent request" do
+    before :each do
+      @result = JSON.parse(response.body)["results"][5]
+    end
+
+    it "returns nothing" do
+      @result.should == {}
+    end
+  end
+
+  context "for a silent request that causes an error" do
+    before :each do
+      @result = JSON.parse(response.body)["results"][6]
+    end
+
+    it "returns a regular result" do
+      @result.keys.should_not be_empty
     end
   end
 end
