@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
                   "number of REST calls with a single HTTP request."
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "changelog.md", "readme.md"]
-  s.test_files = Dir["test/**/*"]
+  s.test_files = Dir["spec/**/*"]
 
   s.add_development_dependency "rails", "~> 3.2"
   s.add_development_dependency "sinatra"
