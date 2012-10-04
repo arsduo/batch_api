@@ -1,3 +1,11 @@
+v0.1.4
+* Refactor errors into ErrorWrapper/BatchError
+* Allow specification of custom status codes raised for errors
+
+v0.1.3
+* Refactor config to use a struct
+* Update readme to cover HTTP pipelining
+
 v0.1.2
 * Rewrite the readme
 * Add travis icon

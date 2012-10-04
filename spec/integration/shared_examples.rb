@@ -11,7 +11,7 @@ shared_examples_for "integrating with a server" do
   end
 
   before :each do
-    BatchApi::Errors::Base.stub(:expose_backtrace?).and_return(false)
+    BatchApi::ErrorWrapper.stub(:expose_backtrace?).and_return(false)
   end
 
   # these are defined in the dummy app's endpoints controller
@@ -119,10 +119,6 @@ shared_examples_for "integrating with a server" do
 
   it "includes results" do
     JSON.parse(response.body)["results"].should be_a(Array)
-  end
-
-  it "includes the timestamp" do
-    JSON.parse(response.body)["timestamp"].to_i.should be_within(100).of(@t.to_i)
   end
 
   context "for a get request" do

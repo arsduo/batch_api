@@ -60,17 +60,17 @@ describe BatchApi::Operation::Rack do
       no_method = op_params.dup.tap {|o| o.delete("method") }
       expect {
         BatchApi::Operation::Rack.new(no_method, env, app)
-      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
 
       no_url = op_params.dup.tap {|o| o.delete("url") }
       expect {
         BatchApi::Operation::Rack.new(no_url, env, app)
-      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
 
       nothing = op_params.dup.tap {|o| o.delete("url"); o.delete("method") }
       expect {
         BatchApi::Operation::Rack.new(nothing, env, app)
-      }.to raise_exception(BatchApi::Operation::MalformedOperationError)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
   end
 
@@ -179,7 +179,7 @@ describe BatchApi::Operation::Rack do
         operation.execute.should == response
       end
 
-      it "returns a BatchApi::Response from an Errors::Operation for errors" do
+      it "returns a BatchApi::Response from an ErrorWrapper for errors" do
         err = StandardError.new
         result, rendered, response = stub, stub, stub
         b_err = stub("batch error", render: rendered)
@@ -187,7 +187,7 @@ describe BatchApi::Operation::Rack do
         # simulate the error
         app.stub(:call).and_raise(err)
         # we'll create the BatchError
-        BatchApi::Errors::Operation.should_receive(:new).with(err).and_return(b_err)
+        BatchApi::ErrorWrapper.should_receive(:new).with(err).and_return(b_err)
         # render that as the response
         BatchApi::Response.should_receive(:new).with(rendered).and_return(response)
         # and return the response overall

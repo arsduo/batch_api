@@ -75,11 +75,11 @@ describe BatchApi::Middleware do
       end
 
       context "for BatchApi errors" do
-        it "returns a rendered Errors::Request" do
+        it "returns a rendered ErrorWrapper" do
           err, result = StandardError.new, stub
           error = stub("error object", render: result)
           BatchApi::Processor.stub(:new).and_raise(err)
-          BatchApi::Errors::Request.should_receive(:new).with(err).and_return(
+          BatchApi::ErrorWrapper.should_receive(:new).with(err).and_return(
             error
           )
           middleware.call(env).should == result
