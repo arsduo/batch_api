@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe BatchApi::InternalMiddleware::SurpressResponse do
+describe BatchApi::InternalMiddleware::ResponseFilter do
   let(:app) { stub("app", call: result) }
-  let(:surpressor) { BatchApi::InternalMiddleware::SurpressResponse.new(app) }
+  let(:surpressor) { BatchApi::InternalMiddleware::ResponseFilter.new(app) }
   let(:env) { {
     op: stub("operation", options: {"silent" => true})
   } }

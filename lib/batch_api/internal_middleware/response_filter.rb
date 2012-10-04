@@ -5,7 +5,7 @@ module BatchApi
     # add silent: true (or any truthy value, like 1) to your operation to
     # surpress all output for successful requests.  Failed requests (status !=
     # 2xx) will still return information.
-    class SurpressResponse
+    class ResponseFilter
       # Public: init the middleware.
       def initialize(app)
         @app = app

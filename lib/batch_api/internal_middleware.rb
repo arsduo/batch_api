@@ -2,7 +2,7 @@ require 'middleware'
 require 'batch_api/processor/sequential'
 require 'batch_api/processor/executor'
 require 'batch_api/internal_middleware/decode_json_body'
-require 'batch_api/internal_middleware/surpress_response'
+require 'batch_api/internal_middleware/response_filter'
 
 module BatchApi
   # Public: the internal middleware system used to process batch requests.
@@ -58,7 +58,7 @@ module BatchApi
     # operation.
     DEFAULT_OPERATION_MIDDLEWARE = Proc.new do
       # Decode JSON response bodies, so they're not double-encoded.
-      use InternalMiddleware::SurpressResponse
+      use InternalMiddleware::ResponseFilter
       use InternalMiddleware::DecodeJsonBody
     end
 

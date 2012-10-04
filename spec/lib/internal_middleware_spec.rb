@@ -32,7 +32,7 @@ describe BatchApi::InternalMiddleware do
 
     it "builds a per-op middleware with the response silencer" do
       builder.middlewares[0].should ==
-        [BatchApi::InternalMiddleware::SurpressResponse, []]
+        [BatchApi::InternalMiddleware::ResponseFilter, []]
     end
 
     it "builds a per-op middleware with the JSON decoder" do
