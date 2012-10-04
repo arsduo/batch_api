@@ -13,15 +13,37 @@ describe BatchApi::Response do
     end
   end
 
-  it "sets status to the HTTP status code" do
-    response.status.should == raw_response.first
+  describe "#initialize" do
+    it "sets status to the HTTP status code" do
+      response.status.should == raw_response.first
+    end
+
+    it "sets body to the HTTP body turned into a string" do
+      response.body.should == raw_response[2].join
+    end
+
+    it "sets headers to the HTTP headers" do
+      response.headers.should == raw_response[1]
+    end
   end
 
-  it "sets body to the HTTP body turned into a string" do
-    response.body.should == raw_response[2].join
-  end
+  describe "#to_json" do
+    it "creates the expected hash" do
+      response.to_json.should == {
+        body: response.body,
+        status: response.status,
+        headers: response.headers
+      }
+    end
 
-  it "sets headers to the HTTP headers" do
-    response.headers.should == raw_response[1]
+    it "leaves out items that are blank" do
+      response.status = response.body = nil
+      response.to_json.should == {headers: raw_response[1]}
+    end
+
+    it "includes items that are false" do
+      response.body = false
+      response.to_json[:body].should == false
+    end
   end
 end

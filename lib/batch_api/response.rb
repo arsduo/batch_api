@@ -13,6 +13,15 @@ module BatchApi
       @body = process_body(response[2])
     end
 
+    # Public: convert the response to JSON.  nil values are ignored.
+    def to_json
+      {}.tap do |result|
+        result[:body] = @body unless @body.nil?
+        result[:headers] = @headers unless @headers.nil?
+        result[:status] = @status unless @status.nil?
+      end
+    end
+
     private
 
     def process_body(body_pieces)
