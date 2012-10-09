@@ -1,3 +1,5 @@
+require 'batch_api/internal_middleware'
+
 module BatchApi
   # Public: configuration options.
   # Currently, you can set:
@@ -9,16 +11,24 @@ module BatchApi
   # - decode_json_responses: automatically decode JSON response bodies,
   # so they don't get double-decoded (e.g. when you decode the batch
   # response, the bodies are already objects).
+  #
+  # There are also two middleware-related options -- check out middleware.rb
+  # for more information.
+  # - global_middleware: any middlewares to use round the entire batch request
+  # (such as authentication, etc.)
+  # - per_op_middleware: any middlewares to run around each individual request
+  # (adding headers, decoding JSON, etc.)
   CONFIGURATION_OPTIONS = {
     verb: :post,
     endpoint: "/batch",
     limit: 50,
-    decode_json_responses: true
+    batch_middleware: InternalMiddleware::DEFAULT_BATCH_MIDDLEWARE,
+    operation_middleware: InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE
   }
 
   # Batch API Configuration
   class Configuration < Struct.new(*CONFIGURATION_OPTIONS.keys)
-    # Public; initialize a new configuration option and apply the defaults.
+    # Public: initialize a new configuration option and apply the defaults.
     def initialize
       super
       CONFIGURATION_OPTIONS.each {|k, v| self[k] = v}

@@ -1,5 +1,5 @@
 module BatchApi
-  class Middleware
+  class RackMiddleware
     def initialize(app, &block)
       @app = app
       yield BatchApi.config if block

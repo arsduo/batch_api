@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe BatchApi::Middleware do
+describe BatchApi::RackMiddleware do
   describe "#initialize" do
     it "allows access to the BatchApi configuration" do
       limit = rand * 100
-      middleware = BatchApi::Middleware.new(stub("app")) do |conf|
+      middleware = BatchApi::RackMiddleware.new(stub("app")) do |conf|
         conf.limit = limit
       end
       BatchApi.config.limit.should == limit
@@ -17,7 +17,7 @@ describe BatchApi::Middleware do
     let(:app) { stub("app") }
 
     let(:middleware) {
-      BatchApi::Middleware.new(app) do |conf|
+      BatchApi::RackMiddleware.new(app) do |conf|
         conf.endpoint = endpoint
         conf.verb = verb
       end
