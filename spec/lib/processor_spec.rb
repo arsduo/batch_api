@@ -1,13 +1,6 @@
 require 'spec_helper'
 
 describe BatchApi::Processor do
-  it "provides a OperationLimitExceeded error" do
-    BatchApi::Processor::OperationLimitExceeded.superclass.should == StandardError
-  end
-
-  it "provides a OperationLimitExceeded error" do
-    BatchApi::Processor::BadOptionError.superclass.should == StandardError
-  end
 
   let(:ops) { [ {"url" => "/endpoint", "method" => "get"} ] }
   let(:options) { { "sequential" => true } }
@@ -27,7 +20,7 @@ describe BatchApi::Processor do
     "SERVER_PORT"=>"3000",
     "SERVER_PROTOCOL"=>"HTTP/1.1",
     "SERVER_SOFTWARE"=>"WEBrick/1.3.1 (Ruby/1.9.3/2012-02-16)",
-    "HTTP_USER_AGENT"=>"curl/7.21.4 (universal-apple-darwin11.0) libcurl/7.21.4 OpenSSL/0.9.8r zlib/1.2.5",
+    "HTTP_USER_AGENT"=>"curl/7.21.4 (universal-apple-darwin11.0) libcurl/7.21",
     "HTTP_HOST"=>"localhost:3000"
   } }
 
@@ -68,52 +61,60 @@ describe BatchApi::Processor do
     context "error conditions" do
       it "(currently) throws an error if sequential is not true" do
         request.params.delete("sequential")
-        expect { BatchApi::Processor.new(request, app) }.to raise_exception(BatchApi::Processor::BadOptionError)
+        expect {
+          BatchApi::Processor.new(request, app)
+        }.to raise_exception(BatchApi::Errors::BadOptionError)
       end
 
       it "raise a OperationLimitExceeded error if too many ops provided" do
         ops = (BatchApi.config.limit + 1).to_i.times.collect {|i| i}
         request.params["ops"] = ops
-        expect { BatchApi::Processor.new(request, app) }.to raise_exception(BatchApi::Processor::OperationLimitExceeded)
+        expect {
+          BatchApi::Processor.new(request, app)
+        }.to raise_exception(BatchApi::Errors::OperationLimitExceeded)
       end
 
-      it "raises an ArgumentError if operations.blank?" do
+      it "raises a NoOperationError if operations.blank?" do
         request.params["ops"] = nil
-        expect { BatchApi::Processor.new(request, app) }.to raise_exception(ArgumentError)
+        expect {
+          BatchApi::Processor.new(request, app)
+        }.to raise_exception(BatchApi::Errors::NoOperationsError)
         request.params["ops"] = []
-        expect { BatchApi::Processor.new(request, app) }.to raise_exception(ArgumentError)
+        expect {
+          BatchApi::Processor.new(request, app)
+        }.to raise_exception(BatchApi::Errors::NoOperationsError)
       end
     end
+  end
 
-    describe "#strategy" do
-      it "returns BatchApi::Processor::Sequential" do
-        processor.strategy.should == BatchApi::Processor::Sequential
-      end
+  describe "#strategy" do
+    it "returns BatchApi::Processor::Sequential" do
+      processor.strategy.should == BatchApi::Processor::Sequential
+    end
+  end
+
+  describe "#execute!" do
+    let(:result) { stub("result") }
+    let(:stack) { stub("stack", call: result) }
+    let(:middleware_env) { {
+      ops: processor.ops, # the processed Operation objects
+      rack_env: env,
+      rack_app: app,
+      options: options
+    } }
+
+    before :each do
+      BatchApi::InternalMiddleware.stub(:batch_stack).and_return(stack)
     end
 
-    describe "#execute!" do
-      let(:result) { stub("result") }
-      let(:stack) { stub("stack", call: result) }
-      let(:middleware_env) { {
-        ops: processor.ops, # the processed Operation objects
-        rack_env: env,
-        rack_app: app,
-        options: options
-      } }
+    it "calls an internal middleware stacks with the appropriate data" do
+      stack.should_receive(:call).with(middleware_env)
+      processor.execute!
+    end
 
-      before :each do
-        BatchApi::InternalMiddleware.stub(:stack).and_return(stack)
-      end
-
-      it "calls an internal middleware stacks with the appropriate data" do
-        stack.should_receive(:call).with(middleware_env)
-        processor.execute!
-      end
-
-      it "returns the formatted result of the strategy" do
-        stack.stub(:call).and_return(stubby = stub)
-        processor.execute!["results"].should == stubby
-      end
+    it "returns the formatted result of the strategy" do
+      stack.stub(:call).and_return(stubby = stub)
+      processor.execute!["results"].should == stubby
     end
   end
 

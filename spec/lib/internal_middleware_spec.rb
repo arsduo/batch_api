@@ -33,22 +33,20 @@ describe BatchApi::InternalMiddleware do
       [BatchApi::InternalMiddleware::DecodeJsonBody, []]
   end
 
-  describe ".stack" do
+  describe ".batch_stack" do
     # we can't use stubs inside the procs since they're instance_eval'd
     let(:global_config) { Proc.new { use "Global" } }
-    let(:op_config) { Proc.new { use "Op" } }
     let(:strategy) { stub("strategy") }
     let(:processor) { stub("processor", strategy: strategy) }
-    let(:stack) { BatchApi::InternalMiddleware.stack(processor) }
+    let(:stack) { BatchApi::InternalMiddleware.batch_stack(processor) }
 
     before :each do
       BatchApi.config.stub(:batch_middleware).and_return(global_config)
-      BatchApi.config.stub(:operation_middleware).and_return(op_config)
       stub_const("Middleware::Builder", FakeBuilder)
     end
 
     it "builds the stack with the right number of wares" do
-      stack.middlewares.length.should == 4
+      stack.middlewares.length.should == 2
     end
 
     it "builds a middleware stack starting with the configured global wares" do
@@ -58,13 +56,28 @@ describe BatchApi::InternalMiddleware do
     it "inserts the appropriate strategy from the processor" do
       stack.middlewares[1].first.should == strategy
     end
+  end
+
+  describe ".operation_stack" do
+    # we can't use stubs inside the procs since they're instance_eval'd
+    let(:op_config) { Proc.new { use "Op" } }
+    let(:stack) { BatchApi::InternalMiddleware.operation_stack }
+
+    before :each do
+      BatchApi.config.stub(:operation_middleware).and_return(op_config)
+      stub_const("Middleware::Builder", FakeBuilder)
+    end
+
+    it "builds the stack with the right number of wares" do
+      stack.middlewares.length.should == 2
+    end
 
     it "builds a middleware stack including the configured per-op wares" do
-      stack.middlewares[2].first.should == "Op"
+      stack.middlewares[0].first.should == "Op"
     end
 
     it "builds a middleware stack ending with the executor" do
-      stack.middlewares[3].first.should == BatchApi::Processor::Executor
+      stack.middlewares[1].first.should == BatchApi::Processor::Executor
     end
   end
 end
