@@ -40,6 +40,11 @@ describe BatchApi::Operation::Rack do
       operation.options.should == op_params
     end
 
+    it "defaults method to get if not provided" do
+      op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app)
+      op.method.should == "get"
+    end
+
     it "defaults params to {} if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
       op.params.should == {}
@@ -63,20 +68,10 @@ describe BatchApi::Operation::Rack do
       end
     end
 
-    it "raises a MalformedOperationError if method or URL are missing" do
-      no_method = op_params.dup.tap {|o| o.delete("method") }
-      expect {
-        BatchApi::Operation::Rack.new(no_method, env, app)
-      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
-
+    it "raises a MalformedOperationError if URL is missing" do
       no_url = op_params.dup.tap {|o| o.delete("url") }
       expect {
         BatchApi::Operation::Rack.new(no_url, env, app)
-      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
-
-      nothing = op_params.dup.tap {|o| o.delete("url"); o.delete("method") }
-      expect {
-        BatchApi::Operation::Rack.new(nothing, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
   end
