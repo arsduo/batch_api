@@ -13,7 +13,7 @@ module BatchApi
       def initialize(op, base_env, app)
         @op = op
 
-        @method = op["method"]
+        @method = op["method"] || "get"
         @url = op["url"]
         @params = op["params"] || {}
         @headers = op["headers"] || {}

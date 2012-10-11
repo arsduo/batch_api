@@ -1,3 +1,6 @@
+v0.2.1
+* Default the method to GET if no method is specified
+
 v0.2.0
 * Refactor app to use internal middlewares for handling operations
 * Refactor JSON decoding to a middleware
