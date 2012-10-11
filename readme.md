@@ -49,13 +49,17 @@ As you can see from the example above, each request in the batch (an
 would include:
 
 * _url_ - the API endpoint to hit, formatted exactly as you would for a regular
-REST API request (e.g. leading /, etc.)
-* _method_ - what type of request to make -- GET, POST, PUT, etc.
+REST API request, leading / and all. (required)
+* _method_ - what type of request to make -- GET, POST, PUT, etc.  If no method
+is supplied, GET is assumed. (optional)
 * _args_ - a hash of arguments to the API. This can be used for both GET and
-PUT/POST/PATCH requests.
-* _headers_ - a hash of request-specific headers. (The headers sent in the
+PUT/POST/PATCH requests. (optional)
+* _headers_ - a hash of request-specific headers. The headers sent in the
 request will be included as well, with operation-specific headers taking
-precendence.)
+precendence. (optional)
+* _silent_ - whether to return a response for this request. You can save on
+transfer if, for instance, you're making several PUT/POST requests, then
+executing a GET at the end.
 
 These individual operations are supplied as the "ops" parameter in the
 overall request.  Other options include:

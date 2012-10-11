@@ -1,3 +1,24 @@
+shared_examples_for "a get request" do
+  it "returns the body as objects" do
+    @result = JSON.parse(response.body)["results"][0]
+    @result["body"].should == get_result[:body]
+  end
+
+  it "returns the expected status" do
+    @result["status"].should == get_result[:status]
+  end
+
+  it "returns the expected headers" do
+    @result["headers"].should include(get_result[:headers])
+  end
+
+  it "verifies that the right headers were received" do
+    @result["headers"]["REQUEST_HEADERS"].should include(
+      headerize(get_headers)
+    )
+  end
+end
+
 shared_examples_for "integrating with a server" do
   def headerize(hash)
     Hash[hash.map do |k, v|
@@ -21,6 +42,12 @@ shared_examples_for "integrating with a server" do
   let(:get_request) { {
     url: "/endpoint",
     method: "get",
+    headers: get_headers,
+    params: get_params
+  } }
+
+  let(:get_by_default_request) { {
+    url: "/endpoint",
     headers: get_headers,
     params: get_params
   } }
@@ -123,7 +150,8 @@ shared_examples_for "integrating with a server" do
         missing_request,
         parameter_request,
         silent_request,
-        failed_silent_request
+        failed_silent_request,
+        get_by_default_request
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
@@ -138,29 +166,20 @@ shared_examples_for "integrating with a server" do
   end
 
   context "for a get request" do
-    describe "the response" do
+    describe "with an explicit get" do
       before :each do
         @result = JSON.parse(response.body)["results"][0]
       end
 
-      it "returns the body as objects" do
-        @result = JSON.parse(response.body)["results"][0]
-        @result["body"].should == get_result[:body]
+      it_should_behave_like "a get request"
+    end
+
+    describe "with no method" do
+      before :each do
+        @result = JSON.parse(response.body)["results"][7]
       end
 
-      it "returns the expected status" do
-        @result["status"].should == get_result[:status]
-      end
-
-      it "returns the expected headers" do
-        @result["headers"].should include(get_result[:headers])
-      end
-
-      it "verifies that the right headers were received" do
-        @result["headers"]["REQUEST_HEADERS"].should include(
-          headerize(get_headers)
-        )
-      end
+      it_should_behave_like "a get request"
     end
   end
 
