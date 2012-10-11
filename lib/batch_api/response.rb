@@ -1,5 +1,3 @@
-require 'batch_api/error'
-
 module BatchApi
   # Public: a response from an internal operation in the Batch API.
   # It contains all the details that are needed to describe the call's
