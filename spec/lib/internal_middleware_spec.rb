@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe BatchApi::InternalMiddleware do
-
   class FakeBuilder
     attr_accessor :middlewares
 
@@ -24,13 +23,22 @@ describe BatchApi::InternalMiddleware do
     builder.middlewares.should be_empty
   end
 
-  it "builds a per-op middleware with the JSON decoder" do
-    builder.instance_eval(
-      &BatchApi::InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE
-    )
-    builder.middlewares.length.should == 1
-    builder.middlewares.first.should ==
-      [BatchApi::InternalMiddleware::DecodeJsonBody, []]
+  describe "internal middleware defaults" do
+    before :each do
+      builder.instance_eval(
+        &BatchApi::InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE
+      )
+    end
+
+    it "builds a per-op middleware with the response silencer" do
+      builder.middlewares[0].should ==
+        [BatchApi::InternalMiddleware::ResponseFilter, []]
+    end
+
+    it "builds a per-op middleware with the JSON decoder" do
+      builder.middlewares[1].should ==
+        [BatchApi::InternalMiddleware::DecodeJsonBody, []]
+    end
   end
 
   describe ".batch_stack" do
