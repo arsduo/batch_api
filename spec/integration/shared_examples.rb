@@ -201,15 +201,7 @@ shared_examples_for "integrating with a server" do
         @result = JSON.parse(response.body)["results"][1]
       end
 
-      it "returns the body raw if decode_json_responses = false" do
-        # BatchApi.config.decode_bodies = false
-        xhr :post, "/batch", {ops: [post_request], sequential: true}.to_json,
-          "CONTENT_TYPE" => "application/json"
-        @result = JSON.parse(response.body)["results"][0]
-        @result["body"].should == JSON.parse(post_result[:body].to_json)
-      end
-
-      it "returns the body as objects if decode_json_responses = true" do
+      it "returns the body as objects (since DecodeJsonBody is default)" do
         @result["body"].should == post_result[:body]
       end
 
