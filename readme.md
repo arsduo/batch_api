@@ -91,6 +91,27 @@ same status code and body they would return as individual requests.
 If the Batch API itself returns a non-200 status code, that indicates a global
 problem.
 
+## Installation
+
+Setting up the Batch API is simple.  Just add the gem to your middlewares:
+
+```ruby
+# in application.rb
+config.middleware.use BatchApi::RackMiddleware do |batch_config|
+  # you can set various configuration options:
+  batch_config.verb = :put # default :post
+  batch_config.endpoint = "/batchapi" # default /batch
+  batch_config.limit = 100 # how many operations max per request, default 50
+
+  # default middleware stack run for each batch request
+  batch_config.batch_middleware = Proc.new { }
+  # default middleware stack run for each individual operation
+  batch_config.operation_middleware = Proc.new { }
+end
+```
+
+That's it!  Just fire up your curl, hit your endpoint with the right verb and a properly formatted request, and enjoy some batch API action.
+
 ## Why a Batch API?
 
 Batch APIs, though unRESTful, are useful for reducing HTTP overhead
