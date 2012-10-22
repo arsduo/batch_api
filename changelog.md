@@ -1,3 +1,7 @@
+v0.2.2
+* Update documentation to remove old options and add installation section
+* Update gems
+
 v0.2.1
 * Default the method to GET if no method is specified
 
