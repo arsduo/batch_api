@@ -59,7 +59,7 @@ describe BatchApi::Processor do
     end
 
     context "error conditions" do
-      it "(currently) throws an error if sequential is not true" do
+      it "(currently) throws an error if sequential is not specified" do
         request.params.delete("sequential")
         expect {
           BatchApi::Processor.new(request, app)
@@ -88,8 +88,18 @@ describe BatchApi::Processor do
   end
 
   describe "#strategy" do
-    it "returns BatchApi::Processor::Sequential" do
-      processor.strategy.should == BatchApi::Processor::Sequential
+    context 'if the sequential param is true' do
+      it "returns BatchApi::Processor::Sequential" do
+        request.params['sequential'] = true
+        processor.strategy.should == BatchApi::Processor::Sequential
+      end
+    end
+
+    context 'if the sequential param is false' do
+      it "returns BatchApi::Processor::Semiparallel" do
+        request.params['sequential'] = false
+        processor.strategy.should == BatchApi::Processor::Semiparallel
+      end
     end
   end
 

@@ -107,8 +107,16 @@ config.middleware.use BatchApi::RackMiddleware do |batch_config|
   batch_config.batch_middleware = Proc.new { }
   # default middleware stack run for each individual operation
   batch_config.operation_middleware = Proc.new { }
+
+  # block to close the current DB connection (used in non-sequential processing)
+  batch_config.close_connection = Proc.new { DM.connection.close }
 end
 ```
+
+**Important**: by default, if BatchApi detects ActiveRecord loaded, the
+close_connection proc will default to `ActiveRecord::Base.connection.close`. If
+you don't use ActiveRecord you should override that proc so you never leave open
+connections when using non-sequential mode.
 
 That's it!  Just fire up your curl, hit your endpoint with the right verb and a properly formatted request, and enjoy some batch API action.
 

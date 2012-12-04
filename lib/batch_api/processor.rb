@@ -1,4 +1,5 @@
 require 'batch_api/processor/sequential'
+require 'batch_api/processor/semiparallel'
 require 'batch_api/operation'
 
 module BatchApi
@@ -28,7 +29,9 @@ module BatchApi
     # provided in BatchApi setup and the request.
     # Currently only Sequential is supported.
     def strategy
-      BatchApi::Processor::Sequential
+      @request.params["sequential"] ?
+        BatchApi::Processor::Sequential :
+        BatchApi::Processor::Semiparallel
     end
 
     # Public: run the batch operations according to the appropriate strategy.
@@ -104,7 +107,7 @@ module BatchApi
     #
     # Returns the valid options hash.
     def process_options
-      unless @request.params["sequential"]
+      unless @request.params.has_key?("sequential")
         raise Errors::BadOptionError, "Sequential flag is currently required"
       end
       @request.params

@@ -62,6 +62,14 @@ module BatchApi
       use InternalMiddleware::DecodeJsonBody
     end
 
+    # Public: the default way to close a database connection **within a
+    # thread**. Used in the parallel processor.
+    DEFAULT_CLOSE_CONNECTION = Proc.new do
+      if defined?(ActiveRecord)
+        ActiveRecord::Base.connection.close
+      end
+    end
+
     # Public: the middleware stack to use for processing the batch request as a
     # whole..
     def self.batch_stack(processor)
