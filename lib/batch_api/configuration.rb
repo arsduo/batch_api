@@ -20,7 +20,8 @@ module BatchApi
     endpoint: "/batch",
     limit: 50,
     batch_middleware: InternalMiddleware::DEFAULT_BATCH_MIDDLEWARE,
-    operation_middleware: InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE
+    operation_middleware: InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE,
+    close_connection: InternalMiddleware::DEFAULT_CLOSE_CONNECTION
   }
 
   # Batch API Configuration

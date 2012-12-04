@@ -59,7 +59,7 @@ module BatchApi
               dupped[:op] = op
 
               middleware = InternalMiddleware.operation_stack
-              middleware.call(dupped)
+              middleware.call(dupped).tap(&BatchApi.config.close_connection)
             end
           end.map(&:join).map(&:value)
         end
