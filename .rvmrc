@@ -1,1 +1,1 @@
-rvm 1.9.3@batch_api --create
+rvm 2.0.0@batch_api --create
