@@ -79,6 +79,8 @@ describe BatchApi::Operation::Rack do
   describe "#process_env" do
     let(:processed_env) { operation.tap {|o| o.process_env}.env }
 
+    before { BatchApi.config.stub(endpoint: '/api/batch') }
+
     it "merges any headers in in the right format" do
       key = "HTTP_FOO" # as defined above in op_params
 
@@ -100,7 +102,7 @@ describe BatchApi::Operation::Rack do
     it "updates the REQUEST_URI" do
       key = "REQUEST_URI"
       processed_env[key].should_not == env[key]
-      processed_env[key].should == env["REQUEST_URI"].gsub(/\/batch.*/, op_params["url"])
+      processed_env[key].should == "http://localhost:3000#{op_params["url"]}"
     end
 
     it "updates the REQUEST_PATH with the path component (w/o params)" do
@@ -208,7 +210,7 @@ describe BatchApi::Operation::Rack do
       "REMOTE_ADDR"=>"127.0.0.1",
       "REMOTE_HOST"=>"1035.spotilocal.com",
       "REQUEST_METHOD"=>"REPORT",
-      "REQUEST_URI"=>"http://localhost:3000/batch",
+      "REQUEST_URI"=>"http://localhost:3000/api/batch",
       "SCRIPT_NAME"=>"",
       "SERVER_NAME"=>"localhost",
       "SERVER_PORT"=>"3000",
@@ -226,8 +228,8 @@ describe BatchApi::Operation::Rack do
       "rack.run_once"=>false,
       "rack.url_scheme"=>"http",
       "HTTP_VERSION"=>"HTTP/1.1",
-      "REQUEST_PATH"=>"/batch",
-      "ORIGINAL_FULLPATH"=>"/batch",
+      "REQUEST_PATH"=>"/api/batch",
+      "ORIGINAL_FULLPATH"=>"/api/batch",
       "rack.request.form_input"=>StringIO.new("{\"ops\":{}}"),
       "rack.request.form_hash"=>{"{\"ops\":{}}"=>nil},
       "rack.request.form_vars"=>"{\"ops\":{}}",
