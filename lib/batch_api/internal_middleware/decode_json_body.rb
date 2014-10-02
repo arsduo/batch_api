@@ -10,7 +10,7 @@ module BatchApi
 
       def call(env)
         @app.call(env).tap do |result|
-          result.body = MultiJson.load(result.body) if should_decode?(result)
+          result.body = MultiJson.load(result.body) if (should_decode?(result) && !result.body.blank?)
         end
       end
 
