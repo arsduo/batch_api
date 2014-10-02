@@ -12,6 +12,13 @@ describe BatchApi::InternalMiddleware::DecodeJsonBody do
       [MultiJson.dump(json)]
     ])
   }
+  let(:blank_result) {
+    BatchApi::Response.new([
+      200,
+      {"Content-Type" => "application/json"},
+      ['']
+    ])
+  }
 
   describe "#call" do
     context "for json results" do
@@ -31,6 +38,13 @@ describe BatchApi::InternalMiddleware::DecodeJsonBody do
       it "doesn't decode" do
         result.headers = {"Content-Type" => "text/html"}
         decoder.call(env).body.should == MultiJson.dump(json)
+      end
+    end
+
+    context "for blank responses" do
+      it "doesn't try to parse" do
+        result.body = ''
+        decoder.call(env).body.should == ''
       end
     end
   end
