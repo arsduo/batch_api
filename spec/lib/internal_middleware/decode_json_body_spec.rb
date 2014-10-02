@@ -12,13 +12,6 @@ describe BatchApi::InternalMiddleware::DecodeJsonBody do
       [MultiJson.dump(json)]
     ])
   }
-  let(:blank_result) {
-    BatchApi::Response.new([
-      200,
-      {"Content-Type" => "application/json"},
-      ['']
-    ])
-  }
 
   describe "#call" do
     context "for json results" do
