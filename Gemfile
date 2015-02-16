@@ -12,9 +12,9 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'faker'
   gem 'timecop'
-  gem "debugger", platform: :mri
+  gem 'pry'
 
-  if RUBY_PLATFORM =~ /darwin/
+  group :darwin do
     # OS X integration
     gem "ruby_gntp"
     gem "rb-fsevent"
