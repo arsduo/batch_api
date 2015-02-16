@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
   s.test_files = Dir["spec/**/*"]
 
   s.add_runtime_dependency("middleware")
-
+  s.add_runtime_dependency("celluloid")
+  
   s.add_development_dependency("rails", "~> 3.2")
   s.add_development_dependency("sinatra")
   s.add_development_dependency("rspec")

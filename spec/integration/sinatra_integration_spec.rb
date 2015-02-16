@@ -10,5 +10,6 @@ describe "Sinatra integration" do
     SinatraApp
   end
 
-  it_should_behave_like "integrating with a server"
+  it_should_behave_like "integrating with a server", true
+  it_should_behave_like "integrating with a server", false
 end
