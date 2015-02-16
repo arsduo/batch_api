@@ -13,6 +13,7 @@ group :development, :test do
   gem 'faker'
   gem 'timecop'
   gem 'pry'
+  gem 'test-unit'
 
   group :darwin do
     # OS X integration
