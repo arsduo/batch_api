@@ -19,7 +19,7 @@ shared_examples_for "a get request" do
   end
 end
 
-shared_examples_for "integrating with a server" do
+shared_examples_for "integrating with a server" do |sequential|
   def headerize(hash)
     Hash[hash.map do |k, v|
       ["HTTP_#{k.to_s.upcase}", v.to_s]
@@ -153,7 +153,7 @@ shared_examples_for "integrating with a server" do
         failed_silent_request,
         get_by_default_request
       ],
-      sequential: true
+      sequential: sequential
     }.to_json, "CONTENT_TYPE" => "application/json"
   end
 

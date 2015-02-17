@@ -1,5 +1,6 @@
 require 'middleware'
 require 'batch_api/processor/sequential'
+require 'batch_api/processor/parallel'
 require 'batch_api/processor/executor'
 require 'batch_api/internal_middleware/decode_json_body'
 require 'batch_api/internal_middleware/response_filter'
@@ -68,7 +69,6 @@ module BatchApi
       Middleware::Builder.new do
         # evaluate these in the context of the middleware stack
         self.instance_eval &BatchApi.config.batch_middleware
-        # for now, everything's sequential, but that will change
         use processor.strategy
       end
     end

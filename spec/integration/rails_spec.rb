@@ -6,5 +6,6 @@ describe "Rails integration specs" do
     BatchApi.stub(:rails?).and_return(true)
   end
 
-  it_should_behave_like "integrating with a server"
+  it_should_behave_like "integrating with a server", true
+  it_should_behave_like "integrating with a server", false
 end

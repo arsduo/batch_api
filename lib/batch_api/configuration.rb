@@ -19,6 +19,7 @@ module BatchApi
     verb: :post,
     endpoint: "/batch",
     limit: 50,
+    parallel_size: 10,
     batch_middleware: InternalMiddleware::DEFAULT_BATCH_MIDDLEWARE,
     operation_middleware: InternalMiddleware::DEFAULT_OPERATION_MIDDLEWARE
   }

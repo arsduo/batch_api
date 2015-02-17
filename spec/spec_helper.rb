@@ -20,6 +20,7 @@ end
 RSpec.configure do |config|
   config.before :each do
     BatchApi.config.limit = 20
+    BatchApi.config.parallel_size = 11
     BatchApi.config.endpoint = "/batch"
     BatchApi.config.verb = :post
 
