@@ -3,7 +3,6 @@ module BatchApi
     def initialize(app, &block)
       @app = app
       yield BatchApi.config if block
-      Celluloid::Actor[:batch_parallel_pool] = BatchApi::ParallelActor.pool(size: BatchApi.config.parallel_size)
     end
 
     def call(env)

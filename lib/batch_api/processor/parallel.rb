@@ -18,13 +18,16 @@ module BatchApi
         futures = env[:ops].map do |op|
           _env = BatchApi::Utils.deep_dup(env)
           _env[:op] = op
-          Celluloid::Actor[:batch_parallel_pool].future.run(_env)
+          self.class.get_actor_pool.future.run(_env)
         end
         futures.map do |future|
           future.value
         end
       end
       
+      def self.get_actor_pool
+        Celluloid::Actor[:batch_parallel_pool] ||= BatchApi::ParallelActor.pool(size: BatchApi.config.parallel_size)
+      end
     end
   end
 end
