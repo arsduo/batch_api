@@ -59,12 +59,6 @@ describe BatchApi::Processor do
     end
 
     context "error conditions" do
-      it "(currently) throws an error if sequential is not true" do
-        request.params.delete("sequential")
-        expect {
-          BatchApi::Processor.new(request, app)
-        }.to raise_exception(BatchApi::Errors::BadOptionError)
-      end
 
       it "raise a OperationLimitExceeded error if too many ops provided" do
         ops = (BatchApi.config.limit + 1).to_i.times.collect {|i| i}
@@ -90,6 +84,13 @@ describe BatchApi::Processor do
   describe "#strategy" do
     it "returns BatchApi::Processor::Sequential" do
       processor.strategy.should == BatchApi::Processor::Sequential
+    end
+    it "returns BatchApi::Processor::Parallel" do
+      request = Rack::Request.new(env).tap do |r|
+        r.stub(:params).and_return({}.merge("ops" => ops).merge("sequential" => false))
+      end
+      processor = BatchApi::Processor.new(request, app)
+      processor.strategy.should == BatchApi::Processor::Parallel
     end
   end
 
