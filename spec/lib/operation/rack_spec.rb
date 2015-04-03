@@ -105,6 +105,14 @@ describe BatchApi::Operation::Rack do
       processed_env[key].should == "http://localhost:3000#{op_params["url"]}"
     end
 
+    it "ignores nil REQUEST_URI" do
+      key = "REQUEST_URI"
+      env[key] = nil
+      expect {
+        processed_env[key]
+      }.not_to raise_exception
+    end
+
     it "updates the REQUEST_PATH with the path component (w/o params)" do
       key = "REQUEST_PATH"
       processed_env[key].should_not == env[key]
