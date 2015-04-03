@@ -1,8 +1,14 @@
 language: ruby
+sudo: false
+cache: bundler
 rvm:
+  # MRI
   - 1.9.3
-  - rbx-19mode
-  - jruby-19mode
+  - 2.0.0
+  - 2.1
+  - 2.2
+  # rbx
+  - rbx-2.4.1
 matrix:
   allow_failures:
-    - rvm: jruby-19mode
+    - rvm: rbx-2.4.1
