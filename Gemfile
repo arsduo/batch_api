@@ -5,7 +5,6 @@ source "http://rubygems.org"
 # development dependencies will be added by default to the :development group.
 gemspec
 
-
 group :development, :test do
   # Testing infrastructure
   gem 'guard'
@@ -15,6 +14,7 @@ group :development, :test do
   gem 'timecop'
   gem 'debugger', :platforms => [:mri_19]
   gem 'byebug', :platforms => [:mri_20, :mri_21]
+  gem 'pry'
 
   group :darwin do
     # OS X integration

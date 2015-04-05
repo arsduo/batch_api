@@ -153,6 +153,7 @@ DEPENDENCIES
   faker
   guard
   guard-rspec
+  pry
   rack-contrib
   rails (~> 3.2)
   rb-fsevent
