@@ -106,7 +106,8 @@ describe BatchApi::Operation::Rack do
     end
 
     it "works if REQUEST_URI is blank" do
-      env.delete("REQUEST_URI")
+      key = "REQUEST_URI"
+      env.delete(key)
       expect(processed_env[key]).to be_nil
     end
 
