@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/arsduo/batch_api.png?branch=master)](http://travis-ci.org/arsduo/batch_api)
+[![Build Status](https://travis-ci.org/arsduo/batch_api.svg?branch=master)](http://travis-ci.org/arsduo/batch_api)
 
 ## What's this?
 
@@ -6,7 +6,7 @@ A gem that provides a RESTful Batch API for Rails and other Rack applications.
 In this system, batch requests are simply collections of regular REST calls,
 whose results are returned as an equivalent collection of regular REST results.
 
-This is heavily inspired by [Facebook's Batch API](http://developers.facebook.com/docs/reference/api/batch/).
+This is heavily inspired by [Facebook's Batch API](https://developers.facebook.com/docs/graph-api/making-multiple-requests).
 
 ## A Quick Example
 

@@ -8,7 +8,7 @@ module BatchApi
   # - verb: through which it's accessed (default "POST")
   # - limit: how many requests can be processed in a single request
   # (default 50)
- #
+  #
   # There are also two middleware-related options -- check out middleware.rb
   # for more information.
   # - global_middleware: any middlewares to use round the entire batch request
