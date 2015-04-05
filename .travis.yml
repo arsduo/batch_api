@@ -1,7 +1,7 @@
 language: ruby
 sudo: false
 cache: bundler
-script: rspec spec
+script: bundle exec rspec spec
 rvm:
   # MRI
   - 1.9.3
