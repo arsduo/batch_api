@@ -33,5 +33,12 @@ describe BatchApi::InternalMiddleware::DecodeJsonBody do
         decoder.call(env).body.should == MultiJson.dump(json)
       end
     end
+
+    context "for empty responses" do
+      it "doesn't try to parse" do
+        result.body = ""
+        decoder.call(env).body.should == ""
+      end
+    end
   end
 end
