@@ -57,7 +57,10 @@ module BatchApi
         @env["REQUEST_METHOD"] = @method.upcase
 
         # path and query string
-        @env["REQUEST_URI"] = @env["REQUEST_URI"].gsub(/#{BatchApi.config.endpoint}.*/, @url)
+        if @env["REQUEST_URI"]
+          @env["REQUEST_URI"] = @env["REQUEST_URI"].gsub(/#{BatchApi.config.endpoint}.*/, @url)
+        end
+
         @env["REQUEST_PATH"] = path
         @env["ORIGINAL_FULLPATH"] = @env["PATH_INFO"] = @url
 
