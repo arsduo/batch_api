@@ -105,6 +105,11 @@ describe BatchApi::Operation::Rack do
       processed_env[key].should == "http://localhost:3000#{op_params["url"]}"
     end
 
+    it "works if REQUEST_URI is blank" do
+      env.delete("REQUEST_URI")
+      expect(processed_env[key]).to be_nil
+    end
+
     it "updates the REQUEST_PATH with the path component (w/o params)" do
       key = "REQUEST_PATH"
       processed_env[key].should_not == env[key]

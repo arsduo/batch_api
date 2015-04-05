@@ -58,6 +58,7 @@ module BatchApi
 
         # path and query string
         if @env["REQUEST_URI"]
+          # not all servers provide REQUEST_URI -- Pow, for instance, doesn't
           @env["REQUEST_URI"] = @env["REQUEST_URI"].gsub(/#{BatchApi.config.endpoint}.*/, @url)
         end
         @env["REQUEST_PATH"] = path
