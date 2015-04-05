@@ -142,7 +142,8 @@ shared_examples_for "integrating with a server" do
 
   before :each do
     @t = Time.now
-    xhr :post, "/batch", {
+    begin
+    post "/batch", {
       ops: [
         get_request,
         post_request,
@@ -155,6 +156,11 @@ shared_examples_for "integrating with a server" do
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
+    rescue => err
+      puts err.message
+      puts err.backtrace.join("\n")
+      raise
+    end
   end
 
   it "returns a 200" do
