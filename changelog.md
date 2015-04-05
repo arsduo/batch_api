@@ -1,3 +1,9 @@
+v0.3.0
+
+* guard against nil REQUEST_URI (thanks, pbendersky and dlackty!)
+* modernize infrastructure and test against newer Ruby versions (thanks, dwaller, pmq20 and dlackty!)
+* don't parse empty bodies as JSON (thanks, trungpham and dlackty!)
+
 v0.2.2
 * Update documentation to remove old options and add installation section
 * Update gems
