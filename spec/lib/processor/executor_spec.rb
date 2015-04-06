@@ -3,20 +3,20 @@ require 'batch_api/processor/executor'
 
 describe BatchApi::Processor::Executor do
 
-  let(:app) { stub("app", call: stub) }
+  let(:app) { double("app", call: double) }
   let(:executor) { BatchApi::Processor::Executor.new(app) }
-  let(:result) { stub("result") }
-  let(:op) { stub("operation", execute: result) }
+  let(:result) { double("result") }
+  let(:op) { double("operation", execute: result) }
   let(:env) { {op: op} }
 
   describe "#call" do
     it "executes the operation" do
-      op.should_receive(:execute)
+      expect(op).to receive(:execute)
       executor.call(env)
     end
 
     it "returns the result" do
-      executor.call(env).should == result
+      expect(executor.call(env)).to eq(result)
     end
   end
 end

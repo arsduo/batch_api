@@ -1,19 +1,19 @@
 shared_examples_for "a get request" do
   it "returns the body as objects" do
     @result = JSON.parse(response.body)["results"][0]
-    @result["body"].should == get_result[:body]
+    expect(@result["body"]).to eq(get_result[:body])
   end
 
   it "returns the expected status" do
-    @result["status"].should == get_result[:status]
+    expect(@result["status"]).to eq(get_result[:status])
   end
 
   it "returns the expected headers" do
-    @result["headers"].should include(get_result[:headers])
+    expect(@result["headers"]).to include(get_result[:headers])
   end
 
   it "verifies that the right headers were received" do
-    @result["headers"]["REQUEST_HEADERS"].should include(
+    expect(@result["headers"]["REQUEST_HEADERS"]).to include(
       headerize(get_headers)
     )
   end
@@ -32,7 +32,7 @@ shared_examples_for "integrating with a server" do
   end
 
   before :each do
-    BatchApi::ErrorWrapper.stub(:expose_backtrace?).and_return(false)
+    allow(BatchApi::ErrorWrapper).to receive(:expose_backtrace?).and_return(false)
   end
 
   # these are defined in the dummy app's endpoints controller
@@ -164,11 +164,11 @@ shared_examples_for "integrating with a server" do
   end
 
   it "returns a 200" do
-    response.status.should == 200
+    expect(response.status).to eq(200)
   end
 
   it "includes results" do
-    JSON.parse(response.body)["results"].should be_a(Array)
+    expect(JSON.parse(response.body)["results"]).to be_a(Array)
   end
 
   context "for a get request" do
@@ -196,7 +196,7 @@ shared_examples_for "integrating with a server" do
       end
 
       it "properly parses the URL segment as a paramer" do
-        @result["body"].should == parameter_result[:body]
+        expect(@result["body"]).to eq(parameter_result[:body])
       end
     end
   end
@@ -208,19 +208,19 @@ shared_examples_for "integrating with a server" do
       end
 
       it "returns the body as objects (since DecodeJsonBody is default)" do
-        @result["body"].should == post_result[:body]
+        expect(@result["body"]).to eq(post_result[:body])
       end
 
       it "returns the expected status" do
-        @result["status"].should == post_result[:status]
+        expect(@result["status"]).to eq(post_result[:status])
       end
 
       it "returns the expected headers" do
-        @result["headers"].should include(post_result[:headers])
+        expect(@result["headers"]).to include(post_result[:headers])
       end
 
       it "verifies that the right headers were received" do
-        @result["headers"]["REQUEST_HEADERS"].should include(headerize(post_headers))
+        expect(@result["headers"]["REQUEST_HEADERS"]).to include(headerize(post_headers))
       end
     end
   end
@@ -231,13 +231,13 @@ shared_examples_for "integrating with a server" do
     end
 
     it "returns the right status" do
-      @result["status"].should == error_response[:status]
+      expect(@result["status"]).to eq(error_response[:status])
     end
 
     it "returns the right error information" do
       # we don't care about the backtrace,
       # the main thing is that the messsage arrives
-      @result["body"]["error"].should include(error_response[:body]["error"])
+      expect(@result["body"]["error"]).to include(error_response[:body]["error"])
     end
   end
 
@@ -247,7 +247,7 @@ shared_examples_for "integrating with a server" do
     end
 
     it "returns the right status" do
-      @result["status"].should == 404
+      expect(@result["status"]).to eq(404)
     end
   end
 
@@ -257,7 +257,7 @@ shared_examples_for "integrating with a server" do
     end
 
     it "returns nothing" do
-      @result.should == {}
+      expect(@result).to eq({})
     end
   end
 
@@ -267,7 +267,7 @@ shared_examples_for "integrating with a server" do
     end
 
     it "returns a regular result" do
-      @result.keys.should_not be_empty
+      expect(@result.keys).not_to be_empty
     end
   end
 end

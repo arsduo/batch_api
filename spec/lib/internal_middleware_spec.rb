@@ -20,7 +20,7 @@ describe BatchApi::InternalMiddleware do
     builder.instance_eval(
       &BatchApi::InternalMiddleware::DEFAULT_BATCH_MIDDLEWARE
     )
-    builder.middlewares.should be_empty
+    expect(builder.middlewares).to be_empty
   end
 
   describe "internal middleware defaults" do
@@ -31,38 +31,40 @@ describe BatchApi::InternalMiddleware do
     end
 
     it "builds a per-op middleware with the response silencer" do
-      builder.middlewares[0].should ==
+      expect(builder.middlewares[0]).to eq(
         [BatchApi::InternalMiddleware::ResponseFilter, []]
+      )
     end
 
     it "builds a per-op middleware with the JSON decoder" do
-      builder.middlewares[1].should ==
+      expect(builder.middlewares[1]).to eq(
         [BatchApi::InternalMiddleware::DecodeJsonBody, []]
+      )
     end
   end
 
   describe ".batch_stack" do
     # we can't use stubs inside the procs since they're instance_eval'd
     let(:global_config) { Proc.new { use "Global" } }
-    let(:strategy) { stub("strategy") }
-    let(:processor) { stub("processor", strategy: strategy) }
+    let(:strategy) { double("strategy") }
+    let(:processor) { double("processor", strategy: strategy) }
     let(:stack) { BatchApi::InternalMiddleware.batch_stack(processor) }
 
     before :each do
-      BatchApi.config.stub(:batch_middleware).and_return(global_config)
+      allow(BatchApi.config).to receive(:batch_middleware).and_return(global_config)
       stub_const("Middleware::Builder", FakeBuilder)
     end
 
     it "builds the stack with the right number of wares" do
-      stack.middlewares.length.should == 2
+      expect(stack.middlewares.length).to eq(2)
     end
 
     it "builds a middleware stack starting with the configured global wares" do
-      stack.middlewares[0].first.should == "Global"
+      expect(stack.middlewares[0].first).to eq("Global")
     end
 
     it "inserts the appropriate strategy from the processor" do
-      stack.middlewares[1].first.should == strategy
+      expect(stack.middlewares[1].first).to eq(strategy)
     end
   end
 
@@ -72,20 +74,20 @@ describe BatchApi::InternalMiddleware do
     let(:stack) { BatchApi::InternalMiddleware.operation_stack }
 
     before :each do
-      BatchApi.config.stub(:operation_middleware).and_return(op_config)
+      allow(BatchApi.config).to receive(:operation_middleware).and_return(op_config)
       stub_const("Middleware::Builder", FakeBuilder)
     end
 
     it "builds the stack with the right number of wares" do
-      stack.middlewares.length.should == 2
+      expect(stack.middlewares.length).to eq(2)
     end
 
     it "builds a middleware stack including the configured per-op wares" do
-      stack.middlewares[0].first.should == "Op"
+      expect(stack.middlewares[0].first).to eq("Op")
     end
 
     it "builds a middleware stack ending with the executor" do
-      stack.middlewares[1].first.should == BatchApi::Processor::Executor
+      expect(stack.middlewares[1].first).to eq(BatchApi::Processor::Executor)
     end
   end
 end

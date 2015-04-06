@@ -15,13 +15,13 @@ module BatchApi
         opt, defa = option, default
         describe "##{opt}" do
           it "has an accessor for #{opt}" do
-            stubby = stub
+            stubby = double
             config.send("#{opt}=", stubby)
-            config.send(opt).should == stubby
+            expect(config.send(opt)).to eq(stubby)
           end
 
           it "defaults #{opt} to #{defa.inspect}" do
-            config.send(opt).should == defa
+            expect(config.send(opt)).to eq(defa)
           end
         end
       end

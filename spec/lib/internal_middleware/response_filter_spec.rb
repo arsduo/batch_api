@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe BatchApi::InternalMiddleware::ResponseFilter do
-  let(:app) { stub("app", call: result) }
+  let(:app) { double("app", call: result) }
   let(:surpressor) { BatchApi::InternalMiddleware::ResponseFilter.new(app) }
   let(:env) { {
-    op: stub("operation", options: {"silent" => true})
+    op: double("operation", options: {"silent" => true})
   } }
 
   let(:result) {
@@ -20,7 +20,7 @@ describe BatchApi::InternalMiddleware::ResponseFilter do
       context "for successful (200-299) results" do
         it "empties the response so its as_json is empty" do
           surpressor.call(env)
-          result.as_json.should == {}
+          expect(result.as_json).to eq({})
         end
       end
 

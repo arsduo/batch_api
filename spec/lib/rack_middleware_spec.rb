@@ -4,17 +4,17 @@ describe BatchApi::RackMiddleware do
   describe "#initialize" do
     it "allows access to the BatchApi configuration" do
       limit = rand * 100
-      middleware = BatchApi::RackMiddleware.new(stub("app")) do |conf|
+      middleware = BatchApi::RackMiddleware.new(double("app")) do |conf|
         conf.limit = limit
       end
-      BatchApi.config.limit.should == limit
+      expect(BatchApi.config.limit).to eq(limit)
     end
   end
 
   describe "#call" do
     let(:endpoint) { "/foo/bar" }
     let(:verb) { "run" }
-    let(:app) { stub("app") }
+    let(:app) { double("app") }
 
     let(:middleware) {
       BatchApi::RackMiddleware.new(app) do |conf|
@@ -47,42 +47,42 @@ describe BatchApi::RackMiddleware do
 
       let(:request) { Rack::Request.new(env) }
       let(:result) { {a: 2, b: {c: 3}} }
-      let(:processor) { stub("processor", :execute! => result) }
+      let(:processor) { double("processor", :execute! => result) }
 
       before :each do
-        BatchApi::Processor.stub(:new).and_return(processor)
+        allow(BatchApi::Processor).to receive(:new).and_return(processor)
       end
 
       it "processes the batch request" do
-        Rack::Request.stub(:new).with(env).and_return(request)
-        BatchApi::Processor.should_receive(:new).with(request, app).and_return(processor)
+        allow(Rack::Request).to receive(:new).with(env).and_return(request)
+        expect(BatchApi::Processor).to receive(:new).with(request, app).and_return(processor)
         middleware.call(env)
       end
 
       context "for a successful set of calls" do
         it "returns the JSON-encoded result as the body" do
           output = middleware.call(env)
-          output[2].should == [MultiJson.dump(result)]
+          expect(output[2]).to eq([MultiJson.dump(result)])
         end
 
         it "returns a 200" do
-          middleware.call(env)[0].should == 200
+          expect(middleware.call(env)[0]).to eq(200)
         end
 
         it "sets the content type" do
-          middleware.call(env)[1].should include("Content-Type" => "application/json")
+          expect(middleware.call(env)[1]).to include("Content-Type" => "application/json")
         end
       end
 
       context "for BatchApi errors" do
         it "returns a rendered ErrorWrapper" do
-          err, result = StandardError.new, stub
-          error = stub("error object", render: result)
-          BatchApi::Processor.stub(:new).and_raise(err)
-          BatchApi::ErrorWrapper.should_receive(:new).with(err).and_return(
+          err, result = StandardError.new, double
+          error = double("error object", render: result)
+          allow(BatchApi::Processor).to receive(:new).and_raise(err)
+          expect(BatchApi::ErrorWrapper).to receive(:new).with(err).and_return(
             error
           )
-          middleware.call(env).should == result
+          expect(middleware.call(env)).to eq(result)
         end
       end
     end
@@ -94,8 +94,8 @@ describe BatchApi::RackMiddleware do
       } }
 
       it "just calls the app onward and returns the result" do
-        output = stub("output")
-        app.should_receive(:call).with(env).and_return(output)
+        output = double("output")
+        expect(app).to receive(:call).with(env).and_return(output)
         middleware.call(env)
       end
     end

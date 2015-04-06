@@ -9,15 +9,15 @@ describe BatchApi::Errors::BatchError do
     BatchApi::Errors::MalformedOperationError
   ].each do |klass|
     it "provides a #{klass} error based on ArgumentError" do
-      klass.superclass.should == ArgumentError
+      expect(klass.superclass).to eq(ArgumentError)
     end
 
     it "is is also a BatchError" do
-      klass.new.should be_a(BatchApi::Errors::BatchError)
+      expect(klass.new).to be_a(BatchApi::Errors::BatchError)
     end
 
     it "has a status code of 422" do
-      klass.new.status_code.should == 422
+      expect(klass.new.status_code).to eq(422)
     end
   end
 end

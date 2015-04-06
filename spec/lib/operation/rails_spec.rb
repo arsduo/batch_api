@@ -12,27 +12,27 @@ describe BatchApi::Operation::Rails do
 
   # for env, see bottom of file - it's long
   let(:operation) { BatchApi::Operation::Rails.new(op_params, env, app) }
-  let(:app) { stub("application", call: [200, {}, ["foo"]]) }
+  let(:app) { double("application", call: [200, {}, ["foo"]]) }
   let(:path_params) { {controller: "batch_api/batch", action: "batch"} }
   let(:mixed_params) { op_params["params"].merge(path_params) }
 
   before :each do
-    ::Rails.application.routes.stub(:recognize_path).and_return(path_params)
+    allow(::Rails.application.routes).to receive(:recognize_path).and_return(path_params)
   end
 
   describe "#initialize" do
     it "merges in the Rails path params" do
-      ::Rails.application.routes.should_receive(:recognize_path).with(
+      expect(::Rails.application.routes).to receive(:recognize_path).with(
         op_params["url"],
         op_params
       ).and_return(path_params)
 
-      operation.params.should include(path_params)
+      expect(operation.params).to include(path_params)
     end
 
     it "doesn't change the params if the path isn't recognized" do
-      ::Rails.application.routes.stub(:recognize_path).and_raise(StandardError)
-      operation.params.should == op_params["params"]
+      allow(::Rails.application.routes).to receive(:recognize_path).and_raise(StandardError)
+      expect(operation.params).to eq(op_params["params"])
     end
   end
 
@@ -41,14 +41,14 @@ describe BatchApi::Operation::Rails do
 
     it "updates the ActionDispatch params" do
       key = "action_dispatch.request.parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == mixed_params
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(mixed_params)
     end
 
     it "updates the ActionDispatch request params" do
       key = "action_dispatch.request.request_parameters"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == mixed_params
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(mixed_params)
     end
   end
 

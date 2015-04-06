@@ -26,36 +26,36 @@ describe BatchApi::Processor do
 
   let(:request) {
     Rack::Request.new(env).tap do |r|
-      r.stub(:params).and_return({}.merge("ops" => ops).merge(options))
+      allow(r).to receive(:params).and_return({}.merge("ops" => ops).merge(options))
     end
   }
-  let(:app) { stub("application", call: [200, {}, ["foo"]]) }
+  let(:app) { double("application", call: [200, {}, ["foo"]]) }
   let(:processor) { BatchApi::Processor.new(request, app) }
 
   describe "#initialize" do
     # this may be brittle...consider refactoring?
     it "turns the ops params into processed operations at #ops" do
       # simulate receiving several operations
-      klass = stub("op class")
-      BatchApi::Processor.stub(:operation_klass).and_return(klass)
-      operation_objects = 3.times.collect { stub("operation object") }
+      klass = double("op class")
+      allow(BatchApi::Processor).to receive(:operation_klass).and_return(klass)
+      operation_objects = 3.times.collect { double("operation object") }
       operation_params = 3.times.collect do |i|
-        stub("raw operation").tap do |o|
-          klass.should_receive(:new)
+        double("raw operation").tap do |o|
+          expect(klass).to receive(:new)
             .with(o, env, app).and_return(operation_objects[i])
         end
       end
 
       request.params["ops"] = operation_params
-      BatchApi::Processor.new(request, app).ops.should == operation_objects
+      expect(BatchApi::Processor.new(request, app).ops).to eq(operation_objects)
     end
 
     it "makes the options available" do
-      BatchApi::Processor.new(request, app).options.should == options
+      expect(BatchApi::Processor.new(request, app).options).to eq(options)
     end
 
     it "makes the app available" do
-      BatchApi::Processor.new(request, app).app.should == app
+      expect(BatchApi::Processor.new(request, app).app).to eq(app)
     end
 
     context "error conditions" do
@@ -89,13 +89,13 @@ describe BatchApi::Processor do
 
   describe "#strategy" do
     it "returns BatchApi::Processor::Sequential" do
-      processor.strategy.should == BatchApi::Processor::Sequential
+      expect(processor.strategy).to eq(BatchApi::Processor::Sequential)
     end
   end
 
   describe "#execute!" do
-    let(:result) { stub("result") }
-    let(:stack) { stub("stack", call: result) }
+    let(:result) { double("result") }
+    let(:stack) { double("stack", call: result) }
     let(:middleware_env) { {
       ops: processor.ops, # the processed Operation objects
       rack_env: env,
@@ -104,31 +104,33 @@ describe BatchApi::Processor do
     } }
 
     before :each do
-      BatchApi::InternalMiddleware.stub(:batch_stack).and_return(stack)
+      allow(BatchApi::InternalMiddleware).to receive(:batch_stack).and_return(stack)
     end
 
     it "calls an internal middleware stacks with the appropriate data" do
-      stack.should_receive(:call).with(middleware_env)
+      expect(stack).to receive(:call).with(middleware_env)
       processor.execute!
     end
 
     it "returns the formatted result of the strategy" do
-      stack.stub(:call).and_return(stubby = stub)
-      processor.execute!["results"].should == stubby
+      allow(stack).to receive(:call).and_return(stubby = double)
+      expect(processor.execute!["results"]).to eq(stubby)
     end
   end
 
   describe ".operation_klass" do
     it "returns BatchApi::Operation::Rack if !Rails" do
-      BatchApi.stub(:rails?).and_return(false)
-      BatchApi::Processor.operation_klass.should ==
+      allow(BatchApi).to receive(:rails?).and_return(false)
+      expect(BatchApi::Processor.operation_klass).to eq(
         BatchApi::Operation::Rack
+      )
     end
 
     it "returns BatchApi::Operation::Rails if Rails" do
-      BatchApi.stub(:rails?).and_return(true)
-      BatchApi::Processor.operation_klass.should ==
+      allow(BatchApi).to receive(:rails?).and_return(true)
+      expect(BatchApi::Processor.operation_klass).to eq(
         BatchApi::Operation::Rails
+      )
     end
   end
 end

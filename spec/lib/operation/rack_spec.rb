@@ -12,7 +12,7 @@ describe BatchApi::Operation::Rack do
 
   # for env, see bottom of file - it's long
   let(:operation) { BatchApi::Operation::Rack.new(op_params, env, app) }
-  let(:app) { stub("application", call: [200, {}, ["foo"]]) }
+  let(:app) { double("application", call: [200, {}, ["foo"]]) }
 
   describe "accessors" do
     [
@@ -21,9 +21,9 @@ describe BatchApi::Operation::Rack do
     ].each do |a|
       attr = a
       it "has an accessor for #{attr}" do
-        value = stub
+        value = double
         operation.send("#{attr}=", value)
-        operation.send(attr).should == value
+        expect(operation.send(attr)).to eq(value)
       end
     end
   end
@@ -32,38 +32,38 @@ describe BatchApi::Operation::Rack do
     ["method", "url", "params", "headers"].each do |a|
       attr = a
       it "extracts the #{attr} information from the operation params" do
-        operation.send(attr).should == op_params[attr]
+        expect(operation.send(attr)).to eq(op_params[attr])
       end
     end
 
     it "sets options to the op" do
-      operation.options.should == op_params
+      expect(operation.options).to eq(op_params)
     end
 
     it "defaults method to get if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app)
-      op.method.should == "get"
+      expect(op.method).to eq("get")
     end
 
     it "defaults params to {} if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
-      op.params.should == {}
+      expect(op.params).to eq({})
     end
 
     it "defaults headers to {} if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("headers"), env, app)
-      op.headers.should == {}
+      expect(op.headers).to eq({})
     end
 
     it "does a deep dup of the env" do
-      operation.env.should == env
+      expect(operation.env).to eq(env)
 
       flat_env = env.to_a.flatten
       operation.env.to_a.flatten.each_with_index do |obj, index|
         # this is a rough test for deep dup -- make sure the objects
         # that aren't symbols aren't actually the same objects in memory
         if obj.is_a?(Hash) || obj.is_a?(Array)
-          obj.object_id.should_not == flat_env[index].object_id
+          expect(obj.object_id).not_to eq(flat_env[index].object_id)
         end
       end
     end
@@ -84,25 +84,25 @@ describe BatchApi::Operation::Rack do
     it "merges any headers in in the right format" do
       key = "HTTP_FOO" # as defined above in op_params
 
-      processed_env[key].should_not == env[key]
+      expect(processed_env[key]).not_to eq(env[key])
       # in this case, it's a batch controller
-      processed_env[key].should == op_params["headers"]["foo"]
+      expect(processed_env[key]).to eq(op_params["headers"]["foo"])
     end
 
     it "preserves existing headers" do
-      processed_env["HTTP_PREVIOUS_HEADERS"].should == env["HTTP_PREVIOUS_HEADERS"]
+      expect(processed_env["HTTP_PREVIOUS_HEADERS"]).to eq(env["HTTP_PREVIOUS_HEADERS"])
     end
 
     it "updates the method" do
       key = "REQUEST_METHOD"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == "POST"
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq("POST")
     end
 
     it "updates the REQUEST_URI" do
       key = "REQUEST_URI"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == "http://localhost:3000#{op_params["url"]}"
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq("http://localhost:3000#{op_params["url"]}")
     end
 
     it "works if REQUEST_URI is blank" do
@@ -113,38 +113,38 @@ describe BatchApi::Operation::Rack do
 
     it "updates the REQUEST_PATH with the path component (w/o params)" do
       key = "REQUEST_PATH"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["url"].split("?").first
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["url"].split("?").first)
     end
 
     it "updates the original fullpath" do
       key = "ORIGINAL_FULLPATH"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["url"]
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["url"])
     end
 
     it "updates the PATH_INFO" do
       key = "PATH_INFO"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["url"]
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["url"])
     end
 
     it "updates the rack query string" do
       key = "rack.request.query_string"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["url"].split("?").last
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["url"].split("?").last)
     end
 
     it "updates the QUERY_STRING" do
       key = "QUERY_STRING"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["url"].split("?").last
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["url"].split("?").last)
     end
 
     it "updates the form hash" do
       key = "rack.request.form_hash"
-      processed_env[key].should_not == env[key]
-      processed_env[key].should == op_params["params"]
+      expect(processed_env[key]).not_to eq(env[key])
+      expect(processed_env[key]).to eq(op_params["params"])
     end
 
     context "query_hash" do
@@ -152,14 +152,14 @@ describe BatchApi::Operation::Rack do
         operation.method = "get"
         processed_env = operation.tap {|o| o.process_env}.env
         key = "rack.request.query_hash"
-        processed_env[key].should_not == env[key]
-        processed_env[key].should == op_params["params"]
+        expect(processed_env[key]).not_to eq(env[key])
+        expect(processed_env[key]).to eq(op_params["params"])
       end
 
       it "sets it to nil for a POST" do
         key = "rack.request.query_hash"
-        processed_env[key].should_not == env[key]
-        processed_env[key].should be_nil
+        expect(processed_env[key]).not_to eq(env[key])
+        expect(processed_env[key]).to be_nil
       end
     end
   end
@@ -169,39 +169,39 @@ describe BatchApi::Operation::Rack do
       let(:result) { [
         200,
         {header: "footer"},
-        stub(body: "{\"data\":2}", cookies: nil)
+        double(body: "{\"data\":2}", cookies: nil)
       ] }
-      let(:processed_env) { stub }
+      let(:processed_env) { double }
 
       before :each do
-        operation.stub(:process_env) { operation.env = processed_env }
+        allow(operation).to receive(:process_env) { operation.env = processed_env }
       end
 
       it "executes the call with the application" do
-        app.should_receive(:call).with(processed_env)
+        expect(app).to receive(:call).with(processed_env)
         operation.execute
       end
 
       it "returns a BatchAPI::Response made from the result" do
-        response = stub
-        app.stub(:call).and_return(result)
-        BatchApi::Response.should_receive(:new).with(result).and_return(response)
-        operation.execute.should == response
+        response = double
+        allow(app).to receive(:call).and_return(result)
+        expect(BatchApi::Response).to receive(:new).with(result).and_return(response)
+        expect(operation.execute).to eq(response)
       end
 
       it "returns a BatchApi::Response from an ErrorWrapper for errors" do
         err = StandardError.new
-        result, rendered, response = stub, stub, stub
-        b_err = stub("batch error", render: rendered)
+        result, rendered, response = double, double, double
+        b_err = double("batch error", render: rendered)
 
         # simulate the error
-        app.stub(:call).and_raise(err)
+        allow(app).to receive(:call).and_raise(err)
         # we'll create the BatchError
-        BatchApi::ErrorWrapper.should_receive(:new).with(err).and_return(b_err)
+        expect(BatchApi::ErrorWrapper).to receive(:new).with(err).and_return(b_err)
         # render that as the response
-        BatchApi::Response.should_receive(:new).with(rendered).and_return(response)
+        expect(BatchApi::Response).to receive(:new).with(rendered).and_return(response)
         # and return the response overall
-        operation.execute.should == response
+        expect(operation.execute).to eq(response)
       end
     end
   end
