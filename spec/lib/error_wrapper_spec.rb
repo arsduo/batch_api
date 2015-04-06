@@ -59,7 +59,7 @@ describe BatchApi::ErrorWrapper do
 
   describe ".expose_backtrace?" do
     it "returns false if Rails.env.production?" do
-      Rails.env.stub(:production?).and_return(true)
+      Rails.stub(:env).and_return(double(test?: false, production?: true, development?: false))
       BatchApi::ErrorWrapper.expose_backtrace?.should be_false
       Rails.env.stub(:production?).and_return(false)
       BatchApi::ErrorWrapper.expose_backtrace?.should be_true

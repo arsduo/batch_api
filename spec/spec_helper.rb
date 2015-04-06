@@ -19,6 +19,8 @@ if ActiveSupport::TestCase.method_defined?(:fixture_path=)
 end
 
 RSpec.configure do |config|
+  config.color = true
+
   config.before :each do
     BatchApi.config.limit = 20
     BatchApi.config.endpoint = "/batch"
