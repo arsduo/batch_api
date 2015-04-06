@@ -9,6 +9,7 @@ Testing improvements:
 
 * modernize test infrastructure and test against newer Ruby versions (thanks, dwaller, pmq20 and dlackty!)
 * update test Rails app version to 4.2
+* modernize RSpec syntax using transpec
 
 
 v0.2.2
