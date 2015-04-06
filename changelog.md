@@ -8,7 +8,7 @@ New features:
 Testing improvements:
 
 * modernize test infrastructure and test against newer Ruby versions (thanks, dwaller, pmq20 and dlackty!)
-* update Rails version in the dummy app and work on rbx/jruby testing (not yet done)
+* update test Rails app version to 4.2
 
 
 v0.2.2

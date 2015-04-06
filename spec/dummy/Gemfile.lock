@@ -2,6 +2,7 @@ GEM
   specs:
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
