@@ -25,4 +25,12 @@ module BatchApi
   def self.rails?
     defined?(Rails)
   end
+
+  # Public: are we using grape?  This partly exists just so that you
+  # can stub it in the tests.
+  #
+  # Returns true if Grape is a defined constant, false otherwise.
+  def self.grape?
+    defined?(Grape)
+  end
 end
