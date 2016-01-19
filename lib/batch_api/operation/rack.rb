@@ -15,7 +15,7 @@ module BatchApi
 
         @method = op["method"] || "get"
         @url = op["url"]
-        @params = op["params"] || {}
+        @params = op["params"] || ActiveSupport::HashWithIndifferentAccess.new
         @headers = op["headers"] || {}
         @options = op
 

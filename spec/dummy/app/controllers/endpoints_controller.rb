@@ -12,6 +12,10 @@ class EndpointsController < ApplicationController
    render json: {result: params[:captured]}
   end
 
+  def process_end_point
+    render json: {result: params[:endpoint]}
+  end
+
   def post
     cookies["POST"] = "tschussikowski"
     response.headers["POST"] = "guten tag"
