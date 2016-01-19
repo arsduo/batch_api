@@ -24,6 +24,11 @@ class SinatraApp < Sinatra::Base
     {result: params[:captured]}.to_json
   end
 
+  get "/endpoint/process_end_point/:endpoint" do
+    content_type :json
+    {result: params[:endpoint]}.to_json
+  end
+
   post "/endpoint" do
     headers["POST"] = "guten tag"
     headers["REQUEST_HEADERS"] = header_output
