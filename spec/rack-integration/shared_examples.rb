@@ -120,6 +120,12 @@ shared_examples_for "integrating with a server" do
     method: "get"
   } }
 
+  let(:process_end_point_request) { {
+      url: "/endpoint/process_end_point/#{parameter}",
+      method: "get"
+  } }
+
+
   let(:parameter_result) { {
     body: {
       "result" => parameter.to_s
@@ -152,7 +158,8 @@ shared_examples_for "integrating with a server" do
         parameter_request,
         silent_request,
         failed_silent_request,
-        get_by_default_request
+        get_by_default_request,
+        process_end_point_request
       ],
       sequential: true
     }.to_json, "CONTENT_TYPE" => "application/json"
@@ -193,6 +200,18 @@ shared_examples_for "integrating with a server" do
     describe "the response" do
       before :each do
         @result = JSON.parse(response.body)["results"][4]
+      end
+
+      it "properly parses the URL segment as a paramer" do
+        expect(@result["body"]).to eq(parameter_result[:body])
+      end
+    end
+  end
+
+  context "for a request with parameters with the same name as the controller" do
+    describe "the response" do
+      before :each do
+        @result = JSON.parse(response.body)["results"][8]
       end
 
       it "properly parses the URL segment as a paramer" do
