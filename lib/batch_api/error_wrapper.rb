@@ -27,7 +27,7 @@ module BatchApi
     #
     # Returns: an Array with the error body represented as JSON.
     def render
-      [status_code, RackMiddleware.content_type, [MultiJson.dump(body)]]
+      [status_code, RackMiddleware.content_type, [body.to_json]]
     end
 
     # Public: the status code to return for the given error.
