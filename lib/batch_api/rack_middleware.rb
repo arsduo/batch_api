@@ -10,7 +10,7 @@ module BatchApi
         begin
           request = request_klass.new(env)
           result = BatchApi::Processor.new(request, @app).execute!
-          [200, self.class.content_type, [MultiJson.dump(result)]]
+          [200, self.class.content_type, [result.to_json]]
         rescue => err
           ErrorWrapper.new(err).render
         end
